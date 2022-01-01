@@ -1,0 +1,17 @@
+{
+  "domain": "zimi",
+  "name": "zimi",
+  "config_flow": true,
+  "documentation": "https://www.home-assistant.io/integrations/zimi",
+  "requirements": [
+    "zcc-helper==1.4"
+  ],
+  "ssdp": [],
+  "zeroconf": [],
+  "homekit": {},
+  "dependencies": [],
+  "codeowners": [
+    "@markhannon"
+  ],
+  "iot_class": "local_push"
+}
