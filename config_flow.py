@@ -3,9 +3,11 @@ from __future__ import annotations
 
 import logging
 import pprint
+import socket
 from typing import Any
 
 import voluptuous as vol
+from voluptuous.error import Error
 from zcc import ControlPoint, ControlPointError
 
 from homeassistant import config_entries
@@ -18,63 +20,32 @@ from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
-# TODO adjust the data schema to the data that you need
 STEP_USER_DATA_SCHEMA = vol.Schema(
     {
-        vol.Required(CONF_HOST): str,
-        vol.Required(CONF_PORT): int,
+        vol.Required(CONF_HOST, default="125.63.20.240"): str,
+        vol.Required(CONF_PORT, default=5003): int,
     }
 )
 
 
-class ZimiHub:
-    """Zimi HUB class."""
-
-    def __init__(self, host: str, port: int) -> None:
-        """Initialize."""
-        self.host = host
-        self.port = port
-        _LOGGER.info("ControlPoint inititation starting")
-        try:
-            self.zcc = ControlPoint(host=self.host, port=self.port)
-        except ControlPointError as e:
-            _LOGGER.info("ControlPoint initiation failed:" + e)
-        _LOGGER.info("ControlPoint inititation completed")
-        _LOGGER.info(self.zcc.describe())
-
-    async def authenticate(self, username: str, password: str) -> bool:
-        """Test if we can authenticate with the host."""
-        return True
-
-
 async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str, Any]:
-    """Validate the user input allows us to connect.
+    """Validate the user input."""
 
-    Data has the keys from STEP_USER_DATA_SCHEMA with values provided by the user.
-    """
-    # TODO validate the data can be used to set up a connection.
+    try:
+        socket.gethostbyname(data[CONF_HOST])
+    except socket.herror as e:
+        raise CannotConnect("%s is not a valid host" % data[CONF_HOST]) from e
 
-    # If your PyPI package is not built with async, pass your methods
-    # to the executor:
-    # await hass.async_add_executor_job(
-    #     your_validate_func, data["username"], data["password"]
-    # )
-
-    _LOGGER.info(pprint.pformat(hass))
-    _LOGGER.info(pprint.pformat(data))
-
-    hub = ZimiHub(data["host"], data["port"])
-
-    if not await hub.authenticate(data["host"], data["port"]):
-        raise InvalidAuth
-
-    # If you cannot connect:
-    # throw CannotConnect
-    # If the authentication is wrong:
-    # InvalidAuth
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect((data[CONF_HOST], int(data[CONF_PORT])))
+    except Exception as e:
+        raise CannotConnect(
+            f"{data[CONF_HOST]} {data[CONF_PORT]} is not reachable"
+        ) from e
 
     # Return info that you want to store in the config entry.
-    return {"title": "Name of the device"}
+    return {"title": "ZIMI Controller"}
 
 
 class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -97,8 +68,6 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             info = await validate_input(self.hass, user_input)
         except CannotConnect:
             errors["base"] = "cannot_connect"
-        except InvalidAuth:
-            errors["base"] = "invalid_auth"
         except Exception:  # pylint: disable=broad-except
             _LOGGER.exception("Unexpected exception")
             errors["base"] = "unknown"

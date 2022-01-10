@@ -1,22 +1,41 @@
 """The zcc integration."""
 from __future__ import annotations
 
+import logging
+import pprint
+
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import device_registry as dr
 
-from .const import DOMAIN
+from .const import CONTROLLER, DOMAIN, PLATFORMS
+from .controller import ZimiController
 
-# TODO List the platforms that you want to support.
-# For your initial PR, limit it to 1 platform.
-PLATFORMS: list[str] = ["light"]
+_LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Set up zcc from a config entry."""
-    # TODO Store an API object for your platforms to access
-    # hass.data[DOMAIN][entry.entry_id] = MyApi(...)
+    """Setup Zimi Controller from config entry"""
 
-    hass.config_entries.async_setup_platforms(entry, PLATFORMS)
+    _LOGGER.info("Starting async_setup_entry")
+    _LOGGER.info("entry_id: %s" % entry.entry_id)
+    _LOGGER.info("data:     %s" % pprint.pformat(entry.data))
+    controller = ZimiController(hass, entry)
+    connected = controller.connect()
+    if not connected:
+        return False
+
+    hass.data[CONTROLLER] = controller
+
+    device_registry = dr.async_get(hass)
+    device_registry.async_get_or_create(
+        config_entry_id=entry.entry_id,
+        identifiers={(DOMAIN, controller.api.mac)},
+        manufacturer=controller.api.brand,
+        name=f"Zimi({controller.api.host}:{controller.api.port})",
+        model=controller.api.product,
+        sw_version="unknown",
+    )
 
     return True
 
