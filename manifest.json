@@ -7,6 +7,7 @@
     "zcc-helper==1.8"
   ],
   "ssdp": [],
+  "version": "0.1.1",
   "zeroconf": [],
   "homekit": {},
   "dependencies": [],
