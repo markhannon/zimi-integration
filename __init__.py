@@ -15,11 +15,11 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Setup Zimi Controller from config entry"""
+    """Connect to Zimi Controller and register device."""
 
     _LOGGER.info("Starting async_setup_entry")
-    _LOGGER.info("entry_id: %s" % entry.entry_id)
-    _LOGGER.info("data:     %s" % pprint.pformat(entry.data))
+    _LOGGER.debug("entry_id: %s", entry.entry_id)
+    _LOGGER.debug("data:     %s", pprint.pformat(entry.data))
     controller = ZimiController(hass, entry)
     connected = controller.connect()
     if not connected:
@@ -30,10 +30,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     device_registry = dr.async_get(hass)
     device_registry.async_get_or_create(
         config_entry_id=entry.entry_id,
-        identifiers={(DOMAIN, controller.api.mac)},
-        manufacturer=controller.api.brand,
-        name=f"Zimi({controller.api.host}:{controller.api.port})",
-        model=controller.api.product,
+        identifiers={(DOMAIN, controller.controller.mac)},
+        manufacturer=controller.controller.brand,
+        name=f"Zimi({controller.controller.host}:{controller.controller.port})",
+        model=controller.controller.product,
         sw_version="unknown",
     )
 

@@ -2,23 +2,22 @@
 from __future__ import annotations
 
 import logging
-import pprint
 from typing import Any
 
-import voluptuous as vol
-
-from homeassistant.components.light import ATTR_BRIGHTNESS, PLATFORM_SCHEMA, LightEntity
+from homeassistant.components.light import LightEntity
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_PORT, CONF_USERNAME
+
+# from homeassistant.const import CONF_HOST, CONF_PORT
 from homeassistant.core import HomeAssistant
 
 # Import the device class from the component that you want to support
-import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 
-from .const import CONTROLLER, DOMAIN, PLATFORMS
+from .const import CONTROLLER
 from .controller import ZimiController
+
+# from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
+
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -31,16 +30,15 @@ async def async_setup_entry(
     """Set up the Zimi Light platform."""
     # Assign configuration variables.
     # The configuration check takes care they are present.
-    host = config_entry.data[CONF_HOST]
-    port = config_entry.data[CONF_PORT]
+    # host = config_entry.data[CONF_HOST]
+    # port = config_entry.data[CONF_PORT]
 
-    controller = hass.data[CONTROLLER]
-
-    _LOGGER.info("Preparing to add: %s" % controller.api.devices)
+    controller: ZimiController = hass.data[CONTROLLER]
 
     entities = []
 
-    for key, device in controller.api.devices.items():
+    # for key, device in controller.api.devices.items():
+    for device in controller.controller.lights:
         entities.append(ZimiLight(device))
 
     async_add_entities(entities)
@@ -51,7 +49,7 @@ class ZimiLight(LightEntity):
 
     def __init__(self, light) -> None:
         """Initialize an ZimiLight."""
-        _LOGGER.info("ZimiLight.__init__() with %s" % light.describe())
+        _LOGGER.info("ZimiLight.__init__() for %s", light.identifier)
         self._attr_unique_id = light.identifier
         self._light = light
         self._name = (
@@ -77,7 +75,7 @@ class ZimiLight(LightEntity):
         return self._brightness
 
     @property
-    def is_on(self) -> bool | None:
+    def is_on(self) -> bool:
         """Return true if light is on."""
         return self._state
 
@@ -88,7 +86,7 @@ class ZimiLight(LightEntity):
         brightness control.
         """
 
-        _LOGGER.info("ZimiLight.turn_on() for %s" % self.unique_id)
+        _LOGGER.info("ZimiLight.turn_on() for %s", self.unique_id)
 
         # self._light.brightness = kwargs.get(ATTR_BRIGHTNESS, 255)
         self._light.turn_on()
@@ -96,7 +94,7 @@ class ZimiLight(LightEntity):
     def turn_off(self, **kwargs: Any) -> None:
         """Instruct the light to turn off."""
 
-        _LOGGER.info("ZimiLight.turn_off() for %s" % self.unique_id)
+        _LOGGER.info("ZimiLight.turn_off() for %s", self.unique_id)
 
         self._light.turn_off()
 
