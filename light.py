@@ -4,7 +4,12 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from homeassistant.components.light import LightEntity
+from homeassistant.components.light import (
+    ATTR_BRIGHTNESS,
+    COLOR_MODE_BRIGHTNESS,
+    SUPPORT_BRIGHTNESS,
+    LightEntity,
+)
 from homeassistant.config_entries import ConfigEntry
 
 # from homeassistant.const import CONF_HOST, CONF_PORT
@@ -52,13 +57,12 @@ class ZimiLight(LightEntity):
         self._attr_unique_id = light.identifier
         self._attr_should_poll = True
         self._light = light
-        self._name = (
-            light.properties.get("name", "-")
-            + "/"
-            + light.properties.get("roomName", "-")
-        )
-        self._state = light.is_on()
-        self._brightness = light.brightness()
+        self._state = False
+        self._brightness = None
+        if self._light.type == "dimmer":
+            self._attr_supported_color_modes = {COLOR_MODE_BRIGHTNESS}
+            self._attr_supported_features = SUPPORT_BRIGHTNESS
+        self.update()
         _LOGGER.info("ZimiLight.__init__() for %s", self.name)
 
     @property
@@ -67,7 +71,7 @@ class ZimiLight(LightEntity):
         return self._name
 
     @property
-    def brightness(self):
+    def brightness(self) -> int | None:
         """Return the brightness of the light.
 
         This method is optional. Removing it indicates to Home Assistant
@@ -89,7 +93,8 @@ class ZimiLight(LightEntity):
 
         _LOGGER.info("ZimiLight.turn_on() for %s", self.name)
 
-        # self._light.brightness = kwargs.get(ATTR_BRIGHTNESS, 255)
+        if self._light.type == "dimmer":
+            self._light.brightness = kwargs.get(ATTR_BRIGHTNESS, 255)
         self._light.turn_on()
 
     def turn_off(self, **kwargs: Any) -> None:
@@ -110,4 +115,5 @@ class ZimiLight(LightEntity):
             + self._light.properties.get("roomName", "-")
         )
         self._state = self._light.is_on()
-        self._brightness = self._light.brightness()
+        if self._light.type == "dimmer":
+            self._brightness = self._light.brightness()
