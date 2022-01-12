@@ -2,4 +2,4 @@
 
 CONTROLLER = "zimi_controller"
 DOMAIN = "zimi"
-PLATFORMS: list[str] = ["light"]
+PLATFORMS: list[str] = ["light", "switch"]
