@@ -49,7 +49,6 @@ class ZimiLight(LightEntity):
 
     def __init__(self, light) -> None:
         """Initialize an ZimiLight."""
-        _LOGGER.info("ZimiLight.__init__() for %s", light.identifier)
         self._attr_unique_id = light.identifier
         self._attr_should_poll = True
         self._light = light
@@ -60,6 +59,7 @@ class ZimiLight(LightEntity):
         )
         self._state = light.is_on()
         self._brightness = light.brightness()
+        _LOGGER.info("ZimiLight.__init__() for %s", self.name)
 
     @property
     def name(self) -> str:
@@ -87,7 +87,7 @@ class ZimiLight(LightEntity):
         brightness control.
         """
 
-        _LOGGER.info("ZimiLight.turn_on() for %s", self.unique_id)
+        _LOGGER.info("ZimiLight.turn_on() for %s", self.name)
 
         # self._light.brightness = kwargs.get(ATTR_BRIGHTNESS, 255)
         self._light.turn_on()
@@ -95,7 +95,7 @@ class ZimiLight(LightEntity):
     def turn_off(self, **kwargs: Any) -> None:
         """Instruct the light to turn off."""
 
-        _LOGGER.info("ZimiLight.turn_off() for %s", self.unique_id)
+        _LOGGER.info("ZimiLight.turn_off() for %s", self.name)
 
         self._light.turn_off()
 
