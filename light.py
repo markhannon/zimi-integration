@@ -51,6 +51,7 @@ class ZimiLight(LightEntity):
         """Initialize an ZimiLight."""
         _LOGGER.info("ZimiLight.__init__() for %s", light.identifier)
         self._attr_unique_id = light.identifier
+        self._attr_should_poll = True
         self._light = light
         self._name = (
             light.properties.get("name", "-")
@@ -103,8 +104,10 @@ class ZimiLight(LightEntity):
 
         This is the only method that should fetch new data for Home Assistant.
         """
-        # self._light.update()
-        # self._state = self._light.is_on()
-        # self._brightness = self._light.brightness
+        self._name = (
+            self._light.properties.get("name", "-")
+            + "/"
+            + self._light.properties.get("roomName", "-")
+        )
         self._state = self._light.is_on()
         self._brightness = self._light.brightness()
