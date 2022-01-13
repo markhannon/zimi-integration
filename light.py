@@ -91,10 +91,14 @@ class ZimiLight(LightEntity):
         brightness control.
         """
 
-        _LOGGER.info("ZimiLight.turn_on() for %s", self.name)
+        _LOGGER.info(
+            "ZimiLight.turn_on(brightness=%d) for %s",
+            kwargs.get(ATTR_BRIGHTNESS, 255),
+            self.name,
+        )
 
         if self._light.type == "dimmer":
-            self._light.brightness = kwargs.get(ATTR_BRIGHTNESS, 255)
+            self._light.set_brightness(kwargs.get(ATTR_BRIGHTNESS, 255))
         self._light.turn_on()
 
     def turn_off(self, **kwargs: Any) -> None:
@@ -116,4 +120,4 @@ class ZimiLight(LightEntity):
         )
         self._state = self._light.is_on()
         if self._light.type == "dimmer":
-            self._brightness = self._light.brightness()
+            self._brightness = self._light.brightness

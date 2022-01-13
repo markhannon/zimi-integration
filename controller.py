@@ -44,9 +44,8 @@ class ZimiController:
             self.logger.info("ControlPoint inititation completed")
             self.logger.info("\n%s", self.controller.describe())
         except ControlPointError as error:
-            raise ConfigEntryNotReady(
-                "ControlPoint initiation failed:" + error
-            ) from error
+            self.logger.info("ControlPoint initiation failed")
+            raise ConfigEntryNotReady(error) from error
 
         if self.controller:
             self.hass.config_entries.async_setup_platforms(self.config, PLATFORMS)
