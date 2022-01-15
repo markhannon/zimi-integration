@@ -55,7 +55,7 @@ class ZimiCover(CoverEntity):
         self._attr_should_poll = True
         self._attr_device_class = DEVICE_CLASS_GARAGE
         self._attr_supported_features = (
-            SUPPORT_SET_POSITION & SUPPORT_CLOSE & SUPPORT_OPEN
+            SUPPORT_SET_POSITION | SUPPORT_CLOSE | SUPPORT_OPEN
         )
         self._cover = cover
         self._state = STATE_CLOSED
