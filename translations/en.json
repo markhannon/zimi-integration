@@ -12,7 +12,8 @@
             "user": {
                 "data": {
                     "host": "Host",
-                    "port": "Port"
+                    "port": "Port",
+                    "debug": "Debug"
                 }
             }
         }

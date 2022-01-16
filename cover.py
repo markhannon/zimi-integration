@@ -5,7 +5,6 @@ import logging
 from typing import Any
 
 from homeassistant.components.cover import (
-    ATTR_CURRENT_POSITION,
     DEVICE_CLASS_GARAGE,
     STATE_CLOSED,
     STATE_CLOSING,
@@ -105,7 +104,7 @@ class ZimiCover(CoverEntity):
 
     def set_cover_position(self, **kwargs):
         """Open the cover/door to a specified percentage."""
-        position = kwargs.get(ATTR_CURRENT_POSITION, None)
+        position = kwargs.get("position", None)
         if position:
             _LOGGER.info("ZimiCover.set_cover_position(%d) for %s", position, self.name)
             self._cover.open_to_percentage(position)

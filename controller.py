@@ -27,6 +27,11 @@ class ZimiController:
         hass.data.setdefault(DOMAIN, {})[self.config.entry_id] = self
 
     @property
+    def debug(self) -> bool:
+        """Return the debug flag for this hub."""
+        return self.config.data["debug"]
+
+    @property
     def host(self) -> str:
         """Return the host of this hub."""
         return self.config.data[CONF_HOST]
@@ -40,7 +45,9 @@ class ZimiController:
         """Initialize Connection with the Zimi Controller."""
         try:
             self.logger.info("ControlPoint inititation starting")
-            self.controller = ControlPoint(host=self.host, port=self.port)
+            self.controller = ControlPoint(
+                host=self.host, port=self.port, debug=self.debug
+            )
             self.logger.info("ControlPoint inititation completed")
             self.logger.info("\n%s", self.controller.describe())
         except ControlPointError as error:

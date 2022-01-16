@@ -2,13 +2,10 @@
 from __future__ import annotations
 
 import logging
-import pprint
 import socket
 from typing import Any
 
 import voluptuous as vol
-from voluptuous.error import Error
-from zcc import ControlPoint, ControlPointError
 
 from homeassistant import config_entries
 from homeassistant.const import CONF_HOST, CONF_PORT
@@ -16,14 +13,15 @@ from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.exceptions import HomeAssistantError
 
-from .const import DOMAIN
+from .const import DEBUG, DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
 STEP_USER_DATA_SCHEMA = vol.Schema(
     {
-        vol.Required(CONF_HOST, default="125.63.20.240"): str,
-        vol.Required(CONF_PORT, default=5003): int,
+        vol.Required(CONF_HOST, description={"suggested_value": "203.123.96.184"}): str,
+        vol.Required(CONF_PORT, description={"suggested_value": 5003}): int,
+        vol.Required(DEBUG, default=False): bool,
     }
 )
 
