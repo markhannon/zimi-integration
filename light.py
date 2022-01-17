@@ -14,11 +14,12 @@ from homeassistant.config_entries import ConfigEntry
 
 # from homeassistant.const import CONF_HOST, CONF_PORT
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity import DeviceInfo
 
 # Import the device class from the component that you want to support
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import CONTROLLER
+from .const import CONTROLLER, DOMAIN
 from .controller import ZimiController
 
 # from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
@@ -62,6 +63,11 @@ class ZimiLight(LightEntity):
         if self._light.type == "dimmer":
             self._attr_supported_color_modes = {COLOR_MODE_BRIGHTNESS}
             self._attr_supported_features = SUPPORT_BRIGHTNESS
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, light.identifier)},
+            name=self._light.name,
+            suggested_area=self._light.room,
+        )
         self.update()
         _LOGGER.info("ZimiLight.__init__() for %s", self.name)
 
@@ -113,11 +119,7 @@ class ZimiLight(LightEntity):
 
         This is the only method that should fetch new data for Home Assistant.
         """
-        self._name = (
-            self._light.properties.get("name", "-")
-            + "/"
-            + self._light.properties.get("roomName", "-")
-        )
+        self._name = self._light.name
         self._state = self._light.is_on()
         if self._light.type == "dimmer":
             self._brightness = self._light.brightness

@@ -7,11 +7,12 @@ from typing import Any
 from homeassistant.components.switch import SwitchEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity import DeviceInfo
 
 # Import the device class from the component that you want to support
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import CONTROLLER
+from .const import CONTROLLER, DOMAIN
 from .controller import ZimiController
 
 _LOGGER = logging.getLogger(__name__)
@@ -44,6 +45,11 @@ class ZimiSwitch(SwitchEntity):
         self._attr_should_poll = True
         self._switch = switch
         self._state = False
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, switch.identifier)},
+            name=self._switch.name,
+            suggested_area=self._switch.room,
+        )
         self.update()
         _LOGGER.info("ZimiSwitch.__init__() for %s", self.name)
 
@@ -74,9 +80,5 @@ class ZimiSwitch(SwitchEntity):
     def update(self) -> None:
         """Fetch new state data for this light."""
 
-        self._name = (
-            self._switch.properties.get("name", "-")
-            + "/"
-            + self._switch.properties.get("roomName", "-")
-        )
+        self._name = self._switch.name
         self._state = self._switch.is_on()
