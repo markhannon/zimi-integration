@@ -11,9 +11,9 @@
         "step": {
             "user": {
                 "data": {
-                    "host": "Host",
-                    "port": "Port",
-                    "debug": "Debug"
+                    "host": "Host (optional)",
+                    "port": "Port (optional)",
+                    "debug": "Enable Debug"
                 }
             }
         }

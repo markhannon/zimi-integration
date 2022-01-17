@@ -19,9 +19,9 @@ _LOGGER = logging.getLogger(__name__)
 
 STEP_USER_DATA_SCHEMA = vol.Schema(
     {
-        vol.Required(CONF_HOST, description={"suggested_value": "203.123.96.184"}): str,
-        vol.Required(CONF_PORT, description={"suggested_value": 5003}): int,
-        vol.Required(DEBUG, default=False): bool,
+        vol.Optional(CONF_HOST, default=""): str,
+        vol.Optional(CONF_PORT, default=5003): int,
+        vol.Optional(DEBUG, default=False): bool,
     }
 )
 
@@ -29,18 +29,19 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
 async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str, Any]:
     """Validate the user input."""
 
-    try:
-        socket.gethostbyname(data[CONF_HOST])
-    except socket.herror as e:
-        raise CannotConnect("%s is not a valid host" % data[CONF_HOST]) from e
+    if data[CONF_HOST] != "":
+        try:
+            socket.gethostbyname(data[CONF_HOST])
+        except socket.herror as e:
+            raise CannotConnect("%s is not a valid host" % data[CONF_HOST]) from e
 
-    try:
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect((data[CONF_HOST], int(data[CONF_PORT])))
-    except Exception as e:
-        raise CannotConnect(
-            f"{data[CONF_HOST]} {data[CONF_PORT]} is not reachable"
-        ) from e
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.connect((data[CONF_HOST], int(data[CONF_PORT])))
+        except Exception as e:
+            raise CannotConnect(
+                f"{data[CONF_HOST]} {data[CONF_PORT]} is not reachable"
+            ) from e
 
     # Return info that you want to store in the config entry.
     return {"title": "ZIMI Controller"}

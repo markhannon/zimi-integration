@@ -9,7 +9,7 @@ from homeassistant.const import CONF_HOST, CONF_PORT
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 
-from .const import DOMAIN, PLATFORMS
+from .const import DEBUG, DOMAIN, PLATFORMS
 
 
 class ZimiController:
@@ -29,7 +29,7 @@ class ZimiController:
     @property
     def debug(self) -> bool:
         """Return the debug flag for this hub."""
-        return self.config.data["debug"]
+        return self.config.data.get(DEBUG, False)
 
     @property
     def host(self) -> str:
@@ -44,10 +44,18 @@ class ZimiController:
     def connect(self) -> bool:
         """Initialize Connection with the Zimi Controller."""
         try:
-            self.logger.info("ControlPoint inititation starting")
-            self.controller = ControlPoint(
-                host=self.host, port=self.port, debug=self.debug
+            self.logger.info(
+                "ControlPoint inititation starting to %s:%d with debug=%s",
+                self.host,
+                self.port,
+                self.debug,
             )
+            if self.host != "":
+                self.controller = ControlPoint(
+                    host=self.host, port=self.port, debug=self.debug
+                )
+            else:
+                self.controller = ControlPoint(debug=self.debug)
             self.logger.info("ControlPoint inititation completed")
             self.logger.info("\n%s", self.controller.describe())
         except ControlPointError as error:
