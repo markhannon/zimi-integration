@@ -126,3 +126,18 @@ class ZimiCover(CoverEntity):
             self._state = STATE_OPENING
         else:
             self._state = STATE_CLOSING
+
+        _LOGGER.info(
+            "ZimiCover.update() with: position=%s, state=%s",
+            str(self._position),
+            self._state,
+        )
+        _LOGGER.info(
+            "\ncover.is_open %s\ncover.is_opening %s\ncover.is_closing %s\ncover.is_closed %s\ncover.percentage %d",
+            self._cover.is_open,
+            self._cover.is_opening,
+            self._cover.is_closing,
+            self._cover.is_closed,
+            self._cover.percentage,
+        )
+        _LOGGER.info("%s", self._cover)
