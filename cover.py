@@ -73,6 +73,8 @@ class ZimiCover(CoverEntity):
         _LOGGER.info("ZimiCover.close_cover() for %s", self.name)
         self._cover.close_door()
 
+        self.schedule_update_ha_state()
+
     @property
     def current_cover_position(self) -> int | None:
         """Return the current cover/door position."""
@@ -108,12 +110,16 @@ class ZimiCover(CoverEntity):
         _LOGGER.info("ZimiCover.open_cover() for %s", self.name)
         self._cover.open_door()
 
+        self.schedule_update_ha_state()
+
     def set_cover_position(self, **kwargs):
         """Open the cover/door to a specified percentage."""
         position = kwargs.get("position", None)
         if position:
             _LOGGER.info("ZimiCover.set_cover_position(%d) for %s", position, self.name)
             self._cover.open_to_percentage(position)
+
+        self.schedule_update_ha_state()
 
     def update(self) -> None:
         """Fetch new state data for this cover."""

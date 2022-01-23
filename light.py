@@ -107,12 +107,16 @@ class ZimiLight(LightEntity):
             self._light.set_brightness(kwargs.get(ATTR_BRIGHTNESS, 255))
         self._light.turn_on()
 
+        self.schedule_update_ha_state()
+
     def turn_off(self, **kwargs: Any) -> None:
         """Instruct the light to turn off."""
 
         _LOGGER.info("ZimiLight.turn_off() for %s", self.name)
 
         self._light.turn_off()
+
+        self.schedule_update_ha_state()
 
     def update(self) -> None:
         """Fetch new state data for this light.
