@@ -42,8 +42,9 @@ class ZimiSwitch(SwitchEntity):
     def __init__(self, switch) -> None:
         """Initialize an ZimiSwitch."""
         self._attr_unique_id = switch.identifier
-        self._attr_should_poll = True
+        self._attr_should_poll = False
         self._switch = switch
+        self._switch.subscribe(self)
         self._state = False
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, switch.identifier)},
@@ -51,7 +52,11 @@ class ZimiSwitch(SwitchEntity):
             suggested_area=self._switch.room,
         )
         self.update()
-        _LOGGER.info("ZimiSwitch.__init__() for %s", self.name)
+        _LOGGER.info("__init__() for %s", self.name)
+
+    def __del__(self):
+        """Cleanup ZimiSwitchwith removal of notification."""
+        self._switch.unsubscribe(self)
 
     @property
     def name(self) -> str:
@@ -63,26 +68,30 @@ class ZimiSwitch(SwitchEntity):
         """Return true if switch is on."""
         return self._state
 
+    def notify(self, _observable):
+        """Receive notification from light device that state has changed."""
+
+        _LOGGER.info("notification() for %s received", self.name)
+        self.schedule_update_ha_state(force_refresh=True)
+
     def turn_on(self, **kwargs: Any) -> None:
         """Instruct the light to turn on."""
 
-        _LOGGER.info("ZimiSwitch.turn_on() for %s", self.name)
+        _LOGGER.info("turn_on() for %s", self.name)
 
         self._switch.turn_on()
-
-        self.schedule_update_ha_state()
 
     def turn_off(self, **kwargs: Any) -> None:
         """Instruct the light to turn off."""
 
-        _LOGGER.info("ZimiSwitch.turn_off() for %s", self.name)
+        _LOGGER.info("turn_off() for %s", self.name)
 
         self._switch.turn_off()
-
-        self.schedule_update_ha_state()
 
     def update(self) -> None:
         """Fetch new state data for this light."""
 
         self._name = self._switch.name
         self._state = self._switch.is_on()
+
+        _LOGGER.info("update() for %s with state=%s", self.name, self._state)

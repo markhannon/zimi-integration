@@ -52,12 +52,13 @@ class ZimiCover(CoverEntity):
     def __init__(self, cover) -> None:
         """Initialize an Zimicover."""
         self._attr_unique_id = cover.identifier
-        self._attr_should_poll = True
+        self._attr_should_poll = False
         self._attr_device_class = DEVICE_CLASS_GARAGE
         self._attr_supported_features = (
             SUPPORT_SET_POSITION | SUPPORT_CLOSE | SUPPORT_OPEN
         )
         self._cover = cover
+        self._cover.subscribe(self)
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, cover.identifier)},
             name=self._cover.name,
@@ -66,11 +67,15 @@ class ZimiCover(CoverEntity):
         self._state = STATE_CLOSED
         self._position = None
         self.update()
-        _LOGGER.info("ZimiCover.__init__() for %s", self.name)
+        _LOGGER.info("__init__() for %s", self.name)
+
+    def __del__(self):
+        """Cleanup ZimiCover with removal of notification."""
+        self._cover.unsubscribe(self)
 
     def close_cover(self, **kwargs: Any) -> None:
         """Close the cover/door."""
-        _LOGGER.info("ZimiCover.close_cover() for %s", self.name)
+        _LOGGER.info("close_cover() for %s", self.name)
         self._cover.close_door()
 
         self.schedule_update_ha_state()
@@ -105,21 +110,23 @@ class ZimiCover(CoverEntity):
         """Return the display name of this cover."""
         return self._name
 
+    def notify(self, _observable):
+        """Receive notification from light device that state has changed."""
+
+        _LOGGER.info("notification() for %s received", self.name)
+        self.schedule_update_ha_state(force_refresh=True)
+
     def open_cover(self, **kwargs: Any) -> None:
         """Open the cover/door."""
-        _LOGGER.info("ZimiCover.open_cover() for %s", self.name)
+        _LOGGER.info("open_cover() for %s", self.name)
         self._cover.open_door()
-
-        self.schedule_update_ha_state()
 
     def set_cover_position(self, **kwargs):
         """Open the cover/door to a specified percentage."""
         position = kwargs.get("position", None)
         if position:
-            _LOGGER.info("ZimiCover.set_cover_position(%d) for %s", position, self.name)
+            _LOGGER.info("set_cover_position(%d) for %s", position, self.name)
             self._cover.open_to_percentage(position)
-
-        self.schedule_update_ha_state()
 
     def update(self) -> None:
         """Fetch new state data for this cover."""
@@ -136,16 +143,7 @@ class ZimiCover(CoverEntity):
             self._state = STATE_CLOSING
 
         _LOGGER.debug(
-            "ZimiCover.update() with: position=%s, state=%s",
+            "update() with: position=%s, state=%s",
             str(self._position),
             self._state,
         )
-        _LOGGER.debug(
-            "\ncover.is_open %s\ncover.is_opening %s\ncover.is_closing %s\ncover.is_closed %s\ncover.percentage %d",
-            self._cover.is_open,
-            self._cover.is_opening,
-            self._cover.is_closing,
-            self._cover.is_closed,
-            self._cover.percentage,
-        )
-        _LOGGER.debug("%s", self._cover)

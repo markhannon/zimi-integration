@@ -56,8 +56,9 @@ class ZimiLight(LightEntity):
     def __init__(self, light) -> None:
         """Initialize an ZimiLight."""
         self._attr_unique_id = light.identifier
-        self._attr_should_poll = True
+        self._attr_should_poll = False
         self._light = light
+        self._light.subscribe(self)
         self._state = False
         self._brightness = None
         if self._light.type == "dimmer":
@@ -69,7 +70,11 @@ class ZimiLight(LightEntity):
             suggested_area=self._light.room,
         )
         self.update()
-        _LOGGER.info("ZimiLight.__init__() for %s", self.name)
+        _LOGGER.info("__init__() for %s", self.name)
+
+    def __del__(self):
+        """Cleanup ZimiLight with removal of notification."""
+        self._light.unsubscribe(self)
 
     @property
     def name(self) -> str:
@@ -98,7 +103,7 @@ class ZimiLight(LightEntity):
         """
 
         _LOGGER.info(
-            "ZimiLight.turn_on(brightness=%d) for %s",
+            "turn_on(brightness=%d) for %s",
             kwargs.get(ATTR_BRIGHTNESS, 255),
             self.name,
         )
@@ -107,23 +112,28 @@ class ZimiLight(LightEntity):
             self._light.set_brightness(kwargs.get(ATTR_BRIGHTNESS, 255))
         self._light.turn_on()
 
-        self.schedule_update_ha_state()
-
     def turn_off(self, **kwargs: Any) -> None:
         """Instruct the light to turn off."""
 
-        _LOGGER.info("ZimiLight.turn_off() for %s", self.name)
+        _LOGGER.info("turn_off() for %s", self.name)
 
         self._light.turn_off()
 
-        self.schedule_update_ha_state()
+    def notify(self, _observable):
+        """Receive notification from light device that state has changed."""
+
+        _LOGGER.info("notification() for %s received", self.name)
+        self.schedule_update_ha_state(force_refresh=True)
 
     def update(self) -> None:
         """Fetch new state data for this light.
 
         This is the only method that should fetch new data for Home Assistant.
         """
+
         self._name = self._light.name
         self._state = self._light.is_on()
         if self._light.type == "dimmer":
             self._brightness = self._light.brightness
+
+        _LOGGER.info("update() for %s with state=%s", self.name, self._state)
