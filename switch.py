@@ -4,7 +4,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from homeassistant.components.switch import SwitchEntity
+from homeassistant.components.switch import SwitchDeviceClass, SwitchEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import DeviceInfo
@@ -42,6 +42,7 @@ class ZimiSwitch(SwitchEntity):
     def __init__(self, switch) -> None:
         """Initialize an ZimiSwitch."""
         self._attr_unique_id = switch.identifier
+        self._attr_device_class = SwitchDeviceClass.SWITCH
         self._attr_should_poll = False
         self._switch = switch
         self._switch.subscribe(self)
@@ -93,5 +94,6 @@ class ZimiSwitch(SwitchEntity):
 
         self._name = self._switch.name
         self._state = self._switch.is_on()
+        self._attr_is_on = self._switch.is_on()
 
         _LOGGER.info("update() for %s with state=%s", self.name, self._state)
