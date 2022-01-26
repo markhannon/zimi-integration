@@ -43,6 +43,7 @@ class ZimiSwitch(SwitchEntity):
         """Initialize an ZimiSwitch."""
         self._attr_unique_id = switch.identifier
         self._attr_device_class = SwitchDeviceClass.SWITCH
+        self._attr_icon = "mdi:power-socket-au"
         self._attr_should_poll = False
         self._switch = switch
         self._switch.subscribe(self)
