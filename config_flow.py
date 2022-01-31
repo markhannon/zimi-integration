@@ -13,7 +13,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.exceptions import HomeAssistantError
 
-from .const import DEBUG, DOMAIN
+from .const import DEBUG, DOMAIN, TIMEOUT
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -22,12 +22,16 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
         vol.Optional(CONF_HOST, default=""): str,
         vol.Optional(CONF_PORT, default=5003): int,
         vol.Optional(DEBUG, default=False): bool,
+        vol.Optional(TIMEOUT, default=3): int,
     }
 )
 
 
 async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str, Any]:
     """Validate the user input."""
+
+    if data[TIMEOUT] == None:
+        data[TIMEOUT] = 3
 
     if data[CONF_HOST] != "":
         try:
@@ -44,7 +48,13 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
             ) from e
 
     # Return info that you want to store in the config entry.
-    return {"title": "ZIMI Controller"}
+    return {
+        "title": "ZIMI Controller",
+        "host": data[CONF_HOST],
+        "port": data[CONF_PORT],
+        "debug": data[DEBUG],
+        "timeout": data[TIMEOUT],
+    }
 
 
 class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
