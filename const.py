@@ -5,3 +5,4 @@ DOMAIN = "zimi"
 PLATFORMS = ["light", "switch", "cover"]
 
 DEBUG = "debug"
+TIMEOUT = "timeout"

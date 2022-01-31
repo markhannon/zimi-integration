@@ -13,7 +13,8 @@
                 "data": {
                     "host": "Host (optional)",
                     "port": "Port (optional)",
-                    "debug": "Enable Debug"
+                    "debug": "Enable Debug",
+                    "timeout": "Timeout (in secs)"
                 }
             }
         }
