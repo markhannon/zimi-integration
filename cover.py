@@ -67,7 +67,7 @@ class ZimiCover(CoverEntity):
         self._state = STATE_CLOSED
         self._position = None
         self.update()
-        _LOGGER.info("__init__() for %s", self.name)
+        _LOGGER.info("__init__(%s)", self.name)
 
     def __del__(self):
         """Cleanup ZimiCover with removal of notification."""
@@ -142,8 +142,9 @@ class ZimiCover(CoverEntity):
         else:
             self._state = STATE_CLOSING
 
-        _LOGGER.debug(
-            "update() with: position=%s, state=%s",
+        _LOGGER.info(
+            "update(%s) with: position=%s, state=%s",
+            self.name,
             str(self._position),
             self._state,
         )
