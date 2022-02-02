@@ -9,7 +9,7 @@ from homeassistant.const import CONF_HOST, CONF_PORT
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 
-from .const import DEBUG, DOMAIN, PLATFORMS
+from .const import DEBUG, DOMAIN, PLATFORMS, TIMEOUT
 
 
 class ZimiController:
@@ -21,7 +21,7 @@ class ZimiController:
         self.hass = hass
         self.config = config
         self.logger = logging.getLogger(__name__)
-        self.logger.info("ZimiController.__init() %s", pprint.pformat(self.config))
+        self.logger.info("__init() %s", pprint.pformat(self.config))
 
         # store (this) bridge object in hass data
         hass.data.setdefault(DOMAIN, {})[self.config.entry_id] = self
@@ -41,21 +41,32 @@ class ZimiController:
         """Return the host of this hub."""
         return self.config.data[CONF_PORT]
 
+    @property
+    def timeout(self) -> int:
+        """Return the timeout of this hub."""
+        if self.config.data[TIMEOUT] == 0:
+            self.config.data[TIMEOUT] = 3
+        return self.config.data[TIMEOUT]
+
     def connect(self) -> bool:
         """Initialize Connection with the Zimi Controller."""
         try:
             self.logger.info(
-                "ControlPoint inititation starting to %s:%d with debug=%s",
+                "ControlPoint inititation starting to %s:%d with debug=%s and timeout=%d",
                 self.host,
                 self.port,
                 self.debug,
+                self.timeout,
             )
             if self.host != "":
                 self.controller = ControlPoint(
-                    host=self.host, port=self.port, debug=self.debug
+                    host=self.host,
+                    port=self.port,
+                    debug=self.debug,
+                    timeout=self.timeout,
                 )
             else:
-                self.controller = ControlPoint(debug=self.debug)
+                self.controller = ControlPoint(debug=self.debug, timeout=self.timeout)
             self.logger.info("ControlPoint inititation completed")
             self.logger.info("\n%s", self.controller.describe())
         except ControlPointError as error:
