@@ -47,7 +47,7 @@ async def async_setup_entry(
 
 
 class ZimiCover(CoverEntity):
-    """Representation of an Awesome cover."""
+    """Representation of a Zimi cover."""
 
     def __init__(self, cover) -> None:
         """Initialize an Zimicover."""
@@ -111,7 +111,7 @@ class ZimiCover(CoverEntity):
         return self._name
 
     def notify(self, _observable):
-        """Receive notification from light device that state has changed."""
+        """Receive notification from cover device that state has changed."""
 
         _LOGGER.info("notification() for %s received", self.name)
         self.schedule_update_ha_state(force_refresh=True)
