@@ -51,7 +51,7 @@ async def async_setup_entry(
 
 
 class ZimiLight(LightEntity):
-    """Representation of an Awesome Light."""
+    """Representation of a Zimi Light."""
 
     def __init__(self, light) -> None:
         """Initialize an ZimiLight."""

@@ -37,7 +37,7 @@ async def async_setup_entry(
 
 
 class ZimiSwitch(SwitchEntity):
-    """Representation of an Awesome Switch."""
+    """Representation of an Zimi Switch."""
 
     def __init__(self, switch) -> None:
         """Initialize an ZimiSwitch."""
@@ -71,27 +71,27 @@ class ZimiSwitch(SwitchEntity):
         return self._state
 
     def notify(self, _observable):
-        """Receive notification from light device that state has changed."""
+        """Receive notification from switch device that state has changed."""
 
         _LOGGER.info("notification() for %s received", self.name)
         self.schedule_update_ha_state(force_refresh=True)
 
     def turn_on(self, **kwargs: Any) -> None:
-        """Instruct the light to turn on."""
+        """Instruct the switch to turn on."""
 
         _LOGGER.info("turn_on() for %s", self.name)
 
         self._switch.turn_on()
 
     def turn_off(self, **kwargs: Any) -> None:
-        """Instruct the light to turn off."""
+        """Instruct the switch to turn off."""
 
         _LOGGER.info("turn_off() for %s", self.name)
 
         self._switch.turn_off()
 
     def update(self) -> None:
-        """Fetch new state data for this light."""
+        """Fetch new state data for this switch."""
 
         self._name = self._switch.name
         self._state = self._switch.is_on()
