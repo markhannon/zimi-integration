@@ -15,8 +15,6 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from .const import CONTROLLER, DOMAIN
 from .controller import ZimiController
 
-_LOGGER = logging.getLogger(__name__)
-
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -25,13 +23,15 @@ async def async_setup_entry(
 ) -> None:
     """Set up the Zimi Switch platform."""
 
+    debug = config_entry.data.get("debug", False)
+
     controller: ZimiController = hass.data[CONTROLLER]
 
     entities = []
 
     # for key, device in controller.api.devices.items():
     for device in controller.controller.outlets:
-        entities.append(ZimiSwitch(device))
+        entities.append(ZimiSwitch(device, debug=debug))
 
     async_add_entities(entities)
 
@@ -39,8 +39,13 @@ async def async_setup_entry(
 class ZimiSwitch(SwitchEntity):
     """Representation of an Zimi Switch."""
 
-    def __init__(self, switch) -> None:
+    def __init__(self, switch, debug=False) -> None:
         """Initialize an ZimiSwitch."""
+
+        self.logger = logging.getLogger(__name__)
+        if debug:
+            self.logger.setLevel(logging.DEBUG)
+
         self._attr_unique_id = switch.identifier
         self._attr_device_class = SwitchDeviceClass.SWITCH
         self._attr_icon = "mdi:power-socket-au"
@@ -54,7 +59,7 @@ class ZimiSwitch(SwitchEntity):
             suggested_area=self._switch.room,
         )
         self.update()
-        _LOGGER.info("__init__(%s)", self.name)
+        self.logger.debug("__init__(%s)", self.name)
 
     def __del__(self):
         """Cleanup ZimiSwitchwith removal of notification."""
@@ -73,20 +78,20 @@ class ZimiSwitch(SwitchEntity):
     def notify(self, _observable):
         """Receive notification from switch device that state has changed."""
 
-        _LOGGER.info("notification() for %s received", self.name)
+        self.logger.debug("notification() for %s received", self.name)
         self.schedule_update_ha_state(force_refresh=True)
 
     def turn_on(self, **kwargs: Any) -> None:
         """Instruct the switch to turn on."""
 
-        _LOGGER.info("turn_on() for %s", self.name)
+        self.logger.debug("turn_on() for %s", self.name)
 
         self._switch.turn_on()
 
     def turn_off(self, **kwargs: Any) -> None:
         """Instruct the switch to turn off."""
 
-        _LOGGER.info("turn_off() for %s", self.name)
+        self.logger.debug("turn_off() for %s", self.name)
 
         self._switch.turn_off()
 
@@ -97,4 +102,4 @@ class ZimiSwitch(SwitchEntity):
         self._state = self._switch.is_on()
         self._attr_is_on = self._switch.is_on()
 
-        _LOGGER.info("update(%s) with state=%s", self.name, self._state)
+        self.logger.debug("update(%s) with state=%s", self.name, self._state)

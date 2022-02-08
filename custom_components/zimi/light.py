@@ -25,9 +25,6 @@ from .controller import ZimiController
 # from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 
 
-_LOGGER = logging.getLogger(__name__)
-
-
 async def async_setup_entry(
     hass: HomeAssistant,
     config_entry: ConfigEntry,
@@ -39,13 +36,15 @@ async def async_setup_entry(
     # host = config_entry.data[CONF_HOST]
     # port = config_entry.data[CONF_PORT]
 
+    debug = config_entry.data.get("debug", False)
+
     controller: ZimiController = hass.data[CONTROLLER]
 
     entities = []
 
     # for key, device in controller.api.devices.items():
     for device in controller.controller.lights:
-        entities.append(ZimiLight(device))
+        entities.append(ZimiLight(device, debug=debug))
 
     async_add_entities(entities)
 
@@ -53,8 +52,13 @@ async def async_setup_entry(
 class ZimiLight(LightEntity):
     """Representation of a Zimi Light."""
 
-    def __init__(self, light) -> None:
+    def __init__(self, light, debug=False) -> None:
         """Initialize an ZimiLight."""
+
+        self.logger = logging.getLogger(__name__)
+        if debug:
+            self.logger.setLevel(logging.DEBUG)
+
         self._attr_unique_id = light.identifier
         self._attr_should_poll = False
         self._light = light
@@ -70,7 +74,7 @@ class ZimiLight(LightEntity):
             suggested_area=self._light.room,
         )
         self.update()
-        _LOGGER.info("__init__(%s)", self.name)
+        self.logger.debug("__init__(%s)", self.name)
 
     def __del__(self):
         """Cleanup ZimiLight with removal of notification."""
@@ -102,7 +106,7 @@ class ZimiLight(LightEntity):
         brightness control.
         """
 
-        _LOGGER.info(
+        self.logger.debug(
             "turn_on(brightness=%d) for %s",
             kwargs.get(ATTR_BRIGHTNESS, 255) * 100 / 255,
             self.name,
@@ -116,14 +120,14 @@ class ZimiLight(LightEntity):
     def turn_off(self, **kwargs: Any) -> None:
         """Instruct the light to turn off."""
 
-        _LOGGER.info("turn_off() for %s", self.name)
+        self.logger.debug("turn_off() for %s", self.name)
 
         self._light.turn_off()
 
     def notify(self, _observable):
         """Receive notification from light device that state has changed."""
 
-        _LOGGER.info("notification() for %s received", self.name)
+        self.logger.debug("notification() for %s received", self.name)
         self.schedule_update_ha_state(force_refresh=True)
 
     def update(self) -> None:
@@ -138,4 +142,4 @@ class ZimiLight(LightEntity):
             if self._light.brightness:
                 self._brightness = self._light.brightness * 255 / 100
 
-        _LOGGER.info("update(%s) with state=%s", self.name, self._state)
+        self.logger.debug("update(%s) with state=%s", self.name, self._state)

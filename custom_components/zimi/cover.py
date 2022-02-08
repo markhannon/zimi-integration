@@ -25,8 +25,6 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from .const import CONTROLLER, DOMAIN
 from .controller import ZimiController
 
-_LOGGER = logging.getLogger(__name__)
-
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -35,13 +33,15 @@ async def async_setup_entry(
 ) -> None:
     """Set up the Zimi Cover platform."""
 
+    debug = config_entry.data.get("debug", False)
+
     controller: ZimiController = hass.data[CONTROLLER]
 
     entities = []
 
     # for key, device in controller.api.devices.items():
     for device in controller.controller.doors:
-        entities.append(ZimiCover(device))
+        entities.append(ZimiCover(device, debug=debug))
 
     async_add_entities(entities)
 
@@ -49,8 +49,13 @@ async def async_setup_entry(
 class ZimiCover(CoverEntity):
     """Representation of a Zimi cover."""
 
-    def __init__(self, cover) -> None:
+    def __init__(self, cover, debug=False) -> None:
         """Initialize an Zimicover."""
+
+        self.logger = logging.getLogger(__name__)
+        if debug:
+            self.logger.setLevel(logging.DEBUG)
+
         self._attr_unique_id = cover.identifier
         self._attr_should_poll = False
         self._attr_device_class = DEVICE_CLASS_GARAGE
@@ -67,7 +72,7 @@ class ZimiCover(CoverEntity):
         self._state = STATE_CLOSED
         self._position = None
         self.update()
-        _LOGGER.info("__init__(%s)", self.name)
+        self.logger.debug("__init__(%s)", self.name)
 
     def __del__(self):
         """Cleanup ZimiCover with removal of notification."""
@@ -75,7 +80,7 @@ class ZimiCover(CoverEntity):
 
     def close_cover(self, **kwargs: Any) -> None:
         """Close the cover/door."""
-        _LOGGER.info("close_cover() for %s", self.name)
+        self.logger.debug("close_cover() for %s", self.name)
         self._cover.close_door()
 
         self.schedule_update_ha_state()
@@ -113,19 +118,19 @@ class ZimiCover(CoverEntity):
     def notify(self, _observable):
         """Receive notification from cover device that state has changed."""
 
-        _LOGGER.info("notification() for %s received", self.name)
+        self.logger.debug("notification() for %s received", self.name)
         self.schedule_update_ha_state(force_refresh=True)
 
     def open_cover(self, **kwargs: Any) -> None:
         """Open the cover/door."""
-        _LOGGER.info("open_cover() for %s", self.name)
+        self.logger.debug("open_cover() for %s", self.name)
         self._cover.open_door()
 
     def set_cover_position(self, **kwargs):
         """Open the cover/door to a specified percentage."""
         position = kwargs.get("position", None)
         if position:
-            _LOGGER.info("set_cover_position(%d) for %s", position, self.name)
+            self.logger.debug("set_cover_position(%d) for %s", position, self.name)
             self._cover.open_to_percentage(position)
 
     def update(self) -> None:
@@ -142,7 +147,7 @@ class ZimiCover(CoverEntity):
         else:
             self._state = STATE_CLOSING
 
-        _LOGGER.info(
+        self.logger.debug(
             "update(%s) with: position=%s, state=%s",
             self.name,
             str(self._position),

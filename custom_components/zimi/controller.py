@@ -20,8 +20,12 @@ class ZimiController:
         self.controller: ControlPoint = None
         self.hass = hass
         self.config = config
+
         self.logger = logging.getLogger(__name__)
-        self.logger.info("__init() %s", pprint.pformat(self.config))
+        if config.data.get("debug", False):
+            self.logger.setLevel(logging.DEBUG)
+
+        self.logger.debug("__init() %s", pprint.pformat(self.config))
 
         # store (this) bridge object in hass data
         hass.data.setdefault(DOMAIN, {})[self.config.entry_id] = self
