@@ -37,7 +37,54 @@ custom_components/zimi/switch.py
 
 ## Configuration is done in the UI
 
+### Automatic setup via UDP discovery
+The integration can attempt to discover a ZCC device on the local network if the user does not enter data into the IP Address and Port fields. If a ZCC is discovered, the IP address and port will be used to interrogate the ZCC to identify all ControlPoints. This data includes Properties, States and Actions which is used to create an Entities within Home Assistant.
+
+### Manual setup via IP and Port
+If the automatic discovery is unsuccessful the user can enter a known IP Address and Port during configuration. The IP will need to be ascertained by the user via their respective network, the default port is 5003.
+
 <!---->
+
+## ControlPoints
+
+A Zimi Powermesh is made up of a number of ControlPoints. A ControlPoint is an individually controllable output on a Zimi Powermesh device. One device can have up to 4 ControlPoints (in the case of a 4 point Multi Purpose Switch).
+
+ControlPoints are assigned to a `Room` and given a `Name` via the Zimi App.
+
+Behaviour Link can be used in the Zimi App to link an unused ControlPoint to another ControlPoint allowing multiple physical switching points for the same endpoint (light).
+
+## Naming
+
+Entities will be created in Home Assistant based naming in the Zimi App. Some consideration should be given to establishing a structured naming scheme in the Zimi App prior to discovery for a cleaner and more manageable experience in Home Assistant.
+
+- Entities will be placed in a Home Assistant Area base on the Room Name in the Zimi App. If the Area does not exist it will be created.
+- Entity name in Home Assistant will be the ControlPoint Name in the Zimi App
+- Entity ID in Home Assistant will be `type.name` (i.e. switch.downlights)
+
+If the same name is given to multiple ControlPoints a numeric will automatically be appended during the creation of the Entity. For example, if Downlights is used in the Zimi App to identify similar devices in multiple rooms the Entity ID(s) in Home Assistant would be: 
+  - light.downlights
+  - light.downlights_2
+  - light.downlights_3
+
+Each of these Entities be uniquely identifiable via it's Area assignment.
+
+## Zimi Network Updates
+
+Changes in the Zimi network (naming and addition of devices) can be picked up by doing a Reload of the integration.
+
+## Compatibility
+
+Integration has been tested on: ZCC Firmware version 20210714010012
+
+This can be checked in the Zimi App check under: Settings -> Manage Network -> Cloud Connect
+
+## Known issues
+- The initial creation of Entities within Home Assistant can be slow for meshes with a high ControlPoint count
+- Occasionally the UI may become out of sync if user inputs rapid change of states - UI should recover to correct state
+- Garage Door Controller does not accept 0 via the UI slider, can be closed via down action
+- Switch (Power Point) icons do not update status, this can be resolved by adding [state_color: true](https://community.home-assistant.io/t/switch-light-entity-icons-not-changing-color-on-state-change-on-off/174898) to the entity card
+- If unexpected behaviour is observed try power cycling the ZCC
+
 
 ## Contributions are welcome!
 
