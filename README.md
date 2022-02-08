@@ -1,6 +1,6 @@
 # Zimi Controller
 
-_Component to integrate with Zimi Controller and associated devices.
+Component to integrate with Zimi Controller and associated devices.
 
 **This component will set up the following platforms.**
 
@@ -15,11 +15,11 @@ Platform | Description
 
 1. Using the tool of choice open the directory (folder) for your HA configuration (where you find `configuration.yaml`).
 2. If you do not have a `custom_components` directory (folder) there, you need to create it.
-3. In the `custom_components` directory (folder) create a new folder called `integration_blueprint`.
-4. Download _all_ the files from the `custom_components/integration_blueprint/` directory (folder) in this repository.
+3. In the `custom_components` directory (folder) create a new folder called `zimi`.
+4. Download _all_ the files from the `custom_components/zimi/` directory (folder) in this repository.
 5. Place the files you downloaded in the new directory (folder) you created.
 6. Restart Home Assistant
-7. In the HA UI go to "Configuration" -> "Integrations" click "+" and search for "Integration blueprint"
+7. In the HA UI go to "Configuration" -> "Integrations" click "+" and search for "zimi"
 
 Using your HA configuration directory (folder) as a starting point you should now also have this:
 
