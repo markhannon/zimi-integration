@@ -59,7 +59,7 @@ class ZimiSwitch(SwitchEntity):
             suggested_area=self._switch.room,
         )
         self.update()
-        self.logger.debug("__init__(%s)", self.name)
+        self.logger.debug("__init__(%s) in %s", self.name, self._switch.room)
 
     def __del__(self):
         """Cleanup ZimiSwitchwith removal of notification."""
@@ -99,7 +99,7 @@ class ZimiSwitch(SwitchEntity):
         """Fetch new state data for this switch."""
 
         self._name = self._switch.name
-        self._state = self._switch.is_on()
-        self._attr_is_on = self._switch.is_on()
+        self._state = self._switch.is_on
+        self._attr_is_on = self._switch.is_on
 
         self.logger.debug("update(%s) with state=%s", self.name, self._state)

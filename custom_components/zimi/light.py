@@ -74,7 +74,7 @@ class ZimiLight(LightEntity):
             suggested_area=self._light.room,
         )
         self.update()
-        self.logger.debug("__init__(%s)", self.name)
+        self.logger.debug("__init__(%s) in %s", self.name, self._light.room)
 
     def __del__(self):
         """Cleanup ZimiLight with removal of notification."""
@@ -137,7 +137,7 @@ class ZimiLight(LightEntity):
         """
 
         self._name = self._light.name
-        self._state = self._light.is_on()
+        self._state = self._light.is_on
         if self._light.type == "dimmer":
             if self._light.brightness:
                 self._brightness = self._light.brightness * 255 / 100

@@ -66,11 +66,13 @@ class ZimiController:
                 self.controller = ControlPoint(
                     host=self.host,
                     port=self.port,
+                    verbose=True,
                     debug=self.debug,
                     timeout=self.timeout,
                 )
             else:
-                self.controller = ControlPoint(debug=self.debug, timeout=self.timeout)
+                self.controller = ControlPoint(
+                    verbose=True, debug=self.debug, timeout=self.timeout)
             self.logger.info("ControlPoint inititation completed")
             self.logger.info("\n%s", self.controller.describe())
         except ControlPointError as error:
@@ -78,6 +80,7 @@ class ZimiController:
             raise ConfigEntryNotReady(error) from error
 
         if self.controller:
-            self.hass.config_entries.async_setup_platforms(self.config, PLATFORMS)
+            self.hass.config_entries.async_setup_platforms(
+                self.config, PLATFORMS)
 
         return True
