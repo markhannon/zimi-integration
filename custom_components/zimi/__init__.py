@@ -8,7 +8,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
 
-from .const import CONTROLLER, DOMAIN, PLATFORMS
+from .const import CONTROLLER, DOMAIN, PLATFORMS, VERBOSITY
 from .controller import ZimiController
 
 _LOGGER = logging.getLogger(__name__)
@@ -19,7 +19,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     _LOGGER.info("Setting up Zimi Controller")
 
-    if entry.data.get("debug", False):
+    if entry.data.get(VERBOSITY, 0) > 1:
         _LOGGER.setLevel(logging.DEBUG)
 
     _LOGGER.debug("async_setup_entry()")
@@ -27,7 +27,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     _LOGGER.debug("data: %s", pprint.pformat(entry.data))
 
     controller = ZimiController(hass, entry)
-    connected = controller.connect()
+    connected = await controller.connect()
     if not connected:
         return False
 

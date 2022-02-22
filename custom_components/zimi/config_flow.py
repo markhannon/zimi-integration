@@ -13,7 +13,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.exceptions import HomeAssistantError
 
-from .const import DEBUG, DOMAIN, TIMEOUT
+from .const import DOMAIN, TIMEOUT, VERBOSITY
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -21,8 +21,8 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
     {
         vol.Optional(CONF_HOST, default=""): str,
         vol.Optional(CONF_PORT, default=5003): int,
-        vol.Optional(DEBUG, default=False): bool,
         vol.Optional(TIMEOUT, default=3): int,
+        vol.Optional(VERBOSITY, default=2): int,
     }
 )
 
@@ -32,6 +32,9 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
 
     if data[TIMEOUT] == None:
         data[TIMEOUT] = 3
+
+    if data[VERBOSITY] == None:
+        data[VERBOSITY] = 2
 
     if data[CONF_HOST] != "":
         try:
@@ -52,8 +55,8 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
         "title": "ZIMI Controller",
         "host": data[CONF_HOST],
         "port": data[CONF_PORT],
-        "debug": data[DEBUG],
         "timeout": data[TIMEOUT],
+        "verbosity": data[VERBOSITY],
     }
 
 

@@ -4,5 +4,5 @@ CONTROLLER = "zimi_controller"
 DOMAIN = "zimi"
 PLATFORMS = ["light", "switch", "cover"]
 
-DEBUG = "debug"
 TIMEOUT = "timeout"
+VERBOSITY = "verbosity"

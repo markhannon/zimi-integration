@@ -13,7 +13,7 @@
                 "data": {
                     "host": "Host (optional)",
                     "port": "Port (optional)",
-                    "debug": "Enable Debug",
+                    "verbosity": "Verbosity (0-2)",
                     "timeout": "Timeout (in secs)"
                 }
             }

@@ -2,14 +2,19 @@
 import logging
 import pprint
 
-from zcc import ControlPoint, ControlPointError
+from zcc import (
+    ControlPoint,
+    ControlPointDescription,
+    ControlPointDiscoveryService,
+    ControlPointError,
+)
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST, CONF_PORT
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 
-from .const import DEBUG, DOMAIN, PLATFORMS, TIMEOUT
+from .const import DOMAIN, PLATFORMS, TIMEOUT, VERBOSITY
 
 
 class ZimiController:
@@ -52,27 +57,25 @@ class ZimiController:
             self.config.data[TIMEOUT] = 3
         return self.config.data[TIMEOUT]
 
-    def connect(self) -> bool:
+    async def connect(self) -> bool:
         """Initialize Connection with the Zimi Controller."""
         try:
             self.logger.info(
-                "ControlPoint inititation starting to %s:%d with debug=%s and timeout=%d",
+                "ControlPoint inititation starting to %s:%d with verbosity=%s and timeout=%d",
                 self.host,
                 self.port,
-                self.debug,
+                self.verbosity,
                 self.timeout,
             )
-            if self.host != "":
-                self.controller = ControlPoint(
-                    host=self.host,
-                    port=self.port,
-                    verbose=True,
-                    debug=self.debug,
-                    timeout=self.timeout,
-                )
+            if self.host == "":
+                description = await ControlPointDiscoveryService().discover()
             else:
-                self.controller = ControlPoint(
-                    verbose=True, debug=self.debug, timeout=self.timeout)
+                description = ControlPointDescription(host=self.host, port=self.port)
+
+            self.controller = ControlPoint(
+                description=description, verbosity=self.verbosity, timeout=self.timeout
+            )
+            await self.controller.connect()
             self.logger.info("ControlPoint inititation completed")
             self.logger.info("\n%s", self.controller.describe())
         except ControlPointError as error:
@@ -80,7 +83,13 @@ class ZimiController:
             raise ConfigEntryNotReady(error) from error
 
         if self.controller:
-            self.hass.config_entries.async_setup_platforms(
-                self.config, PLATFORMS)
+            self.hass.config_entries.async_setup_platforms(self.config, PLATFORMS)
 
         return True
+
+    @property
+    def verbosity(self) -> int:
+        """Return the verbosity of this hub."""
+        if self.config.data[VERBOSITY] == None:
+            self.config.data[VERBOSITY] = 2
+        return self.config.data[VERBOSITY]
