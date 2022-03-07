@@ -99,7 +99,7 @@ class ZimiLight(LightEntity):
         """Return true if light is on."""
         return self._state
 
-    def turn_on(self, **kwargs: Any) -> None:
+    async def async_turn_on(self, **kwargs: Any) -> None:
         """Instruct the light to turn on.
 
         You can skip the brightness part if your light does not support
@@ -113,16 +113,18 @@ class ZimiLight(LightEntity):
         )
 
         if self._light.type == "dimmer":
-            self._light.set_brightness(kwargs.get(ATTR_BRIGHTNESS, 255) * 100 / 255)
+            await self._light.set_brightness(
+                kwargs.get(ATTR_BRIGHTNESS, 255) * 100 / 255
+            )
         else:
-            self._light.turn_on()
+            await self._light.turn_on()
 
-    def turn_off(self, **kwargs: Any) -> None:
+    async def async_turn_off(self, **kwargs: Any) -> None:
         """Instruct the light to turn off."""
 
         self.logger.debug("turn_off() for %s", self.name)
 
-        self._light.turn_off()
+        await self._light.turn_off()
 
     def notify(self, _observable):
         """Receive notification from light device that state has changed."""

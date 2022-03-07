@@ -78,10 +78,10 @@ class ZimiCover(CoverEntity):
         """Cleanup ZimiCover with removal of notification."""
         self._cover.unsubscribe(self)
 
-    def close_cover(self, **kwargs: Any) -> None:
+    async def async_close_cover(self, **kwargs: Any) -> None:
         """Close the cover/door."""
         self.logger.debug("close_cover() for %s", self.name)
-        self._cover.close_door()
+        await self._cover.close_door()
 
         self.schedule_update_ha_state()
 
@@ -121,17 +121,17 @@ class ZimiCover(CoverEntity):
         self.logger.debug("notification() for %s received", self.name)
         self.schedule_update_ha_state(force_refresh=True)
 
-    def open_cover(self, **kwargs: Any) -> None:
+    async def async_open_cover(self, **kwargs: Any) -> None:
         """Open the cover/door."""
         self.logger.debug("open_cover() for %s", self.name)
-        self._cover.open_door()
+        await self._cover.open_door()
 
-    def set_cover_position(self, **kwargs):
+    async def async_set_cover_position(self, **kwargs):
         """Open the cover/door to a specified percentage."""
         position = kwargs.get("position", None)
         if position:
             self.logger.debug("set_cover_position(%d) for %s", position, self.name)
-            self._cover.open_to_percentage(position)
+            await self._cover.open_to_percentage(position)
 
     def update(self) -> None:
         """Fetch new state data for this cover."""

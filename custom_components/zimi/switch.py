@@ -81,19 +81,19 @@ class ZimiSwitch(SwitchEntity):
         self.logger.debug("notification() for %s received", self.name)
         self.schedule_update_ha_state(force_refresh=True)
 
-    def turn_on(self, **kwargs: Any) -> None:
+    async def async_turn_on(self, **kwargs: Any) -> None:
         """Instruct the switch to turn on."""
 
         self.logger.debug("turn_on() for %s", self.name)
 
-        self._switch.turn_on()
+        await self._switch.turn_on()
 
-    def turn_off(self, **kwargs: Any) -> None:
+    async def async_turn_off(self, **kwargs: Any) -> None:
         """Instruct the switch to turn off."""
 
         self.logger.debug("turn_off() for %s", self.name)
 
-        self._switch.turn_off()
+        await self._switch.turn_off()
 
     def update(self) -> None:
         """Fetch new state data for this switch."""
