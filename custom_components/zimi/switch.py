@@ -66,6 +66,11 @@ class ZimiSwitch(SwitchEntity):
         self._switch.unsubscribe(self)
 
     @property
+    def available(self) -> bool:
+        """Return True if Home Assistant is able to read the state and control the underlying device"""
+        return self._switch.is_connected
+
+    @property
     def name(self) -> str:
         """Return the display name of this switch."""
         return self._name

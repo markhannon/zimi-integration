@@ -86,6 +86,11 @@ class ZimiCover(CoverEntity):
         self.schedule_update_ha_state()
 
     @property
+    def available(self) -> bool:
+        '''Return True if Home Assistant is able to read the state and control the underlying device'''
+        return self._cover.is_connected
+
+    @property
     def current_cover_position(self) -> int | None:
         """Return the current cover/door position."""
         return self._position

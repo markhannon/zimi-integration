@@ -86,6 +86,11 @@ class ZimiLight(LightEntity):
         return self._name
 
     @property
+    def available(self) -> bool:
+        '''Return True if Home Assistant is able to read the state and control the underlying device'''
+        return self._light.is_connected
+
+    @property
     def brightness(self) -> int | None:
         """Return the brightness of the light.
 

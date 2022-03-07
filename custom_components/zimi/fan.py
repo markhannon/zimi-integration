@@ -111,6 +111,11 @@ class ZimiFan(FanEntity):
         await self._fan.turn_off()
 
     @property
+    def available(self) -> bool:
+        """Return True if Home Assistant is able to read the state and control the underlying device"""
+        return self._fan.is_connected
+
+    @property
     def name(self) -> str:
         """Return the display name of this cover."""
         return self._name
