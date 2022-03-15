@@ -4,7 +4,7 @@
         {
             "label": "Run Home Assistant on port 8123 (in virtualenv)",
             "type": "shell",
-            "command": "./haas.sh",
+            "command": "./hass.sh",
             "problemMatcher": []
         },
         {

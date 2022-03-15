@@ -3,9 +3,9 @@
   "name": "zimi",
   "config_flow": true,
   "documentation": "https://www.home-assistant.io/integrations/zimi",
-  "version": "0.9.3",
+  "version": "0.9.4",
   "requirements": [
-    "zcc-helper==2.9.25"
+    "zcc-helper==2.9.26"
   ],
   "ssdp": [],
   "zeroconf": [],
