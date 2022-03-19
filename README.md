@@ -7,6 +7,7 @@ Component to integrate with Zimi Controller and associated devices.
 Platform | Description
 -- | --
 `cover` | Open or close a cover (typically garage door).
+`fan` | Switch a fan on or off and change speed.
 `light` | Switch a light on or off.
 `switch` | Switch a switch on or off.
 
@@ -29,6 +30,7 @@ custom_components/zimi/__init__.py
 custom_components/zimi/config_flow.py
 custom_components/zimi/const.py
 custom_components/zimi/cover.py
+custom_components/zimi/fan.py
 custom_components/zimi/light.py
 custom_components/zimi/manifest.json
 custom_components/zimi/strings.json
@@ -79,8 +81,9 @@ Integration has been tested on: ZCC Firmware version 20220303010011
 This can be checked in the Zimi App check under: Settings -> Manage Network -> Cloud Connect
 
 ## Known issues
+- Zimi Controller IP address auto-discovery has some issues: (a) it does not work reliably if the HA is hosted in a docker container, (b) it has been shown to have some issues at HA restart.  For best results enter the IP address of the controller when setting up the integration.
+- The connection between HA and the zimi controller times out if no updates are present.   If a device is operated on from the HA dashboard after a timeout the connection is reset however the initial button press is 'lost' and must be re-initiated.
 - The initial creation of Entities within Home Assistant can be slow for meshes with a high ControlPoint count
-- Occasionally the UI may become out of sync if user inputs rapid change of states - UI should recover to correct state
 - Garage Door Controller does not accept 0 via the UI slider, can be closed via down action
 - Switch (Power Point) icons do not update status, this can be resolved by adding [state_color: true](https://community.home-assistant.io/t/switch-light-entity-icons-not-changing-color-on-state-change-on-off/174898) to the entity card
 - If unexpected behaviour is observed try power cycling the ZCC

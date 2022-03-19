@@ -3,6 +3,7 @@
 Platform | Description
 -- | --
 `cover` | Open or close a cover (typically garage door).
+`fan` | Switch a fan on or off and change speed.
 `light` | Switch a light on or off.
 `switch` | Switch a switch on or off.
 

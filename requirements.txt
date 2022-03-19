@@ -1,1 +1,1 @@
-zcc-helper==2.4
+zcc-helper
