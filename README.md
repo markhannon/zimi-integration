@@ -74,7 +74,7 @@ Changes in the Zimi network (naming and addition of devices) can be picked up by
 
 ## Compatibility
 
-Integration has been tested on: ZCC Firmware version 20210714010012
+Integration has been tested on: ZCC Firmware version 20220303010011
 
 This can be checked in the Zimi App check under: Settings -> Manage Network -> Cloud Connect
 
