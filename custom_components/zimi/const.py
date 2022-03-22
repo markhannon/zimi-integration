@@ -2,7 +2,7 @@
 
 CONTROLLER = "zimi_controller"
 DOMAIN = "zimi"
-PLATFORMS = ["light", "switch", "cover", "fan"]
+PLATFORMS = ["light", "sensor", "switch", "cover", "fan"]
 
 TIMEOUT = "timeout"
 VERBOSITY = "verbosity"

@@ -5,7 +5,7 @@
   "documentation": "https://www.home-assistant.io/integrations/zimi",
   "version": "0.9.6",
   "requirements": [
-    "zcc-helper==2.9.31"
+    "zcc-helper==2.9.34"
   ],
   "ssdp": [],
   "zeroconf": [],
