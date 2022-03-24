@@ -92,9 +92,8 @@ class ZimiSensor(SensorEntity):
         """Initialize an ZimiSensor with specified type."""
 
         self.logger = logging.getLogger(__name__)
-        # if debug:
-        #     self.logger.setLevel(logging.DEBUG)
-        self.logger.setLevel(logging.DEBUG)
+        if debug:
+            self.logger.setLevel(logging.DEBUG)
 
         self.entity_description = description
         self._attr_unique_id = sensor.identifier + '.' + self.entity_description.key
