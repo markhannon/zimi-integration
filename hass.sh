@@ -1,7 +1,7 @@
 #!/bin/sh
-
+#
+# Setup and optionally run local HA server in virtual environment
 # 
-# Run local HA server in virtual environment
 
 echo "Creating virtual environment for HA"
 /opt/homebrew/bin/python3 -m venv .venv
@@ -12,5 +12,7 @@ echo "Creating config and symlinking custom_components"
 .venv/bin/hass --script ensure_config -c .venv/config
 (cd .venv/config; ln -s ../../custom_components)
 
-echo "Starting HA"
-.venv/bin/hass -c .venv/config
+if [ "$1" == "--execute" ]; then
+    echo "Starting HA"
+    .venv/bin/hass -c .venv/config
+fi

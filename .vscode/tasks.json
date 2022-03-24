@@ -2,9 +2,15 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Run Home Assistant on port 8123 (in virtualenv)",
+            "label": "Setup Home Assistant (in virtualenv)",
             "type": "shell",
             "command": "./hass.sh",
+            "problemMatcher": []
+        },
+        {
+            "label": "Run Home Assistant (in virtualenv) on port 8123",
+            "type": "shell",
+            "command": "./hass.sh --execute",
             "problemMatcher": []
         },
         {
