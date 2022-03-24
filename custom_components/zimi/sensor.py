@@ -18,7 +18,7 @@ from homeassistant.const import (
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity import DeviceInfo
+from homeassistant.helpers.entity import DeviceInfo, EntityCategory
 
 # Import the device class from the component that you want to support
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -43,6 +43,7 @@ GARAGE_SENSOR_DESCRIPTIONS = (
         key=SENSOR_KEY_GARAGE_BATTERY,
         name="Battery Level",
         native_unit_of_measurement=PERCENTAGE,
+        entity_category=EntityCategory.DIAGNOSTIC,
         device_class=SensorDeviceClass.BATTERY,
     ),
     SensorEntityDescription(
