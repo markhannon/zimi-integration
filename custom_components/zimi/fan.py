@@ -51,6 +51,10 @@ async def async_setup_entry(
     async_add_entities(entities)
 
 
+async def async_unload_entry(hass, entry):
+    """Unload a config entry."""
+
+
 class ZimiFan(FanEntity):
     """Representation of a Zimi fan."""
 
@@ -81,7 +85,8 @@ class ZimiFan(FanEntity):
 
     async def async_set_percentage(self, percentage: int) -> None:
         """Set the desired speed for the fan."""
-        self.logger.debug("async_set_percentage() with percentage %s", percentage)
+        self.logger.debug(
+            "async_set_percentage() with percentage %s", percentage)
 
         if percentage == 0:
             await self.async_turn_off()
@@ -149,4 +154,5 @@ class ZimiFan(FanEntity):
         self._name = self._fan.name
         self._speed = self._fan.fanspeed
 
-        self.logger.debug("update(%s) with: speed=%s", self.name, str(self._speed))
+        self.logger.debug("update(%s) with: speed=%s",
+                          self.name, str(self._speed))

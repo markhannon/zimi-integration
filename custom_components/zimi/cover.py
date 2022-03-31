@@ -46,6 +46,10 @@ async def async_setup_entry(
     async_add_entities(entities)
 
 
+async def async_unload_entry(hass, entry):
+    """Unload a config entry."""
+
+
 class ZimiCover(CoverEntity):
     """Representation of a Zimi cover."""
 
@@ -135,7 +139,8 @@ class ZimiCover(CoverEntity):
         """Open the cover/door to a specified percentage."""
         position = kwargs.get("position", None)
         if position:
-            self.logger.debug("set_cover_position(%d) for %s", position, self.name)
+            self.logger.debug("set_cover_position(%d) for %s",
+                              position, self.name)
             await self._cover.open_to_percentage(position)
 
     def update(self) -> None:

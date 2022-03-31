@@ -49,6 +49,10 @@ async def async_setup_entry(
     async_add_entities(entities)
 
 
+async def async_unload_entry(hass, entry):
+    """Unload a config entry."""
+
+
 class ZimiLight(LightEntity):
     """Representation of a Zimi Light."""
 

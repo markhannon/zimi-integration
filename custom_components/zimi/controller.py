@@ -72,7 +72,8 @@ class ZimiController:
                 # self.config.data[CONF_HOST] = description.host
                 # self.config.data[CONF_PORT] = description.port
             else:
-                description = ControlPointDescription(host=self.host, port=self.port)
+                description = ControlPointDescription(
+                    host=self.host, port=self.port)
 
             self.controller = ControlPoint(
                 description=description, verbosity=self.verbosity, timeout=self.timeout
@@ -85,9 +86,15 @@ class ZimiController:
             raise ConfigEntryNotReady(error) from error
 
         if self.controller:
-            self.hass.config_entries.async_setup_platforms(self.config, PLATFORMS)
+            self.hass.config_entries.async_setup_platforms(
+                self.config, PLATFORMS)
 
         return True
+
+    async def disconnect(self):
+        '''Disconnect the ZCC controller.'''
+        self.controller.disconnect()
+        self.controller = None
 
     @property
     def verbosity(self) -> int:

@@ -44,3 +44,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     )
 
     return True
+
+
+async def async_unload_entry(hass, entry):
+    """Unload a config entry."""
+
+    # for platform in PLATFORMS:
+    # await hass.config_entries.async_forward_entry_unload(entry, platform)
+
+    # controller: ZimiController = hass.data[CONTROLLER]
+    # await controller.disconnect()
