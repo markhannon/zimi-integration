@@ -72,7 +72,8 @@ class ZimiController:
                 # self.config.data[CONF_HOST] = description.host
                 # self.config.data[CONF_PORT] = description.port
             else:
-                description = ControlPointDescription(host=self.host, port=self.port)
+                description = ControlPointDescription(
+                    host=self.host, port=self.port)
 
             self.controller = ControlPoint(
                 description=description, verbosity=self.verbosity, timeout=self.timeout
@@ -80,12 +81,15 @@ class ZimiController:
             await self.controller.connect()
             self.logger.info("ControlPoint inititation completed")
             self.logger.info("\n%s", self.controller.describe())
+            self.controller.start_watchdog(1800)
+            self.logger.info("Started 30 minute watchdog")
         except ControlPointError as error:
             self.logger.info("ControlPoint initiation failed")
             raise ConfigEntryNotReady(error) from error
 
         if self.controller:
-            self.hass.config_entries.async_setup_platforms(self.config, PLATFORMS)
+            self.hass.config_entries.async_setup_platforms(
+                self.config, PLATFORMS)
 
         return True
 
