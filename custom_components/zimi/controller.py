@@ -97,5 +97,5 @@ class ZimiController:
     def verbosity(self) -> int:
         """Return the verbosity of this hub."""
         if self.config.data[VERBOSITY] == None:
-            self.config.data[VERBOSITY] = 2
+            self.config.data[VERBOSITY] = 1
         return self.config.data[VERBOSITY]
