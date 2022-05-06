@@ -13,7 +13,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.exceptions import HomeAssistantError
 
-from .const import DOMAIN, TIMEOUT, VERBOSITY
+from .const import DOMAIN, TIMEOUT, VERBOSITY, WATCHDOG
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -23,6 +23,7 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
         vol.Optional(CONF_PORT, default=5003): int,
         vol.Optional(TIMEOUT, default=3): int,
         vol.Optional(VERBOSITY, default=2): int,
+        vol.Optional(WATCHDOG, default=1800): int
     }
 )
 
@@ -36,11 +37,15 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
     if data[VERBOSITY] == None:
         data[VERBOSITY] = 2
 
+    if data[WATCHDOG] == None:
+        data[WATCHDOG] = 1800
+
     if data[CONF_HOST] != "":
         try:
             socket.gethostbyname(data[CONF_HOST])
         except socket.herror as e:
-            raise CannotConnect("%s is not a valid host" % data[CONF_HOST]) from e
+            raise CannotConnect("%s is not a valid host" %
+                                data[CONF_HOST]) from e
 
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -57,6 +62,7 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
         "port": data[CONF_PORT],
         "timeout": data[TIMEOUT],
         "verbosity": data[VERBOSITY],
+        "watchdog": data[WATCHDOG]
     }
 
 

@@ -14,7 +14,8 @@
                     "host": "Host (optional)",
                     "port": "Port (optional)",
                     "verbosity": "Verbosity (0-2)",
-                    "timeout": "Timeout (in secs)"
+                    "timeout": "Timeout (in secs)",
+                    "watchdog": "Watchdog Timeout (in secs)"
                 }
             }
         }

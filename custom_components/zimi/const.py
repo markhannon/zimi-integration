@@ -6,3 +6,4 @@ PLATFORMS = ["light", "sensor", "switch", "cover", "fan"]
 
 TIMEOUT = "timeout"
 VERBOSITY = "verbosity"
+WATCHDOG = "watchdog"

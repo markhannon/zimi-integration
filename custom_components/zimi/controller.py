@@ -14,7 +14,7 @@ from homeassistant.const import CONF_HOST, CONF_PORT
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 
-from .const import DOMAIN, PLATFORMS, TIMEOUT, VERBOSITY
+from .const import DOMAIN, PLATFORMS, TIMEOUT, VERBOSITY, WATCHDOG
 
 
 class ZimiController:
@@ -61,11 +61,12 @@ class ZimiController:
         """Initialize Connection with the Zimi Controller."""
         try:
             self.logger.info(
-                "ControlPoint inititation starting to %s:%d with verbosity=%s and timeout=%d",
+                "ControlPoint inititation starting to %s:%d with verbosity=%s, timeout=%d and watchdog=%d",
                 self.host,
                 self.port,
                 self.verbosity,
                 self.timeout,
+                self.watchdog
             )
             if self.host == "":
                 description = await ControlPointDiscoveryService().discover()
@@ -81,8 +82,10 @@ class ZimiController:
             await self.controller.connect()
             self.logger.info("ControlPoint inititation completed")
             self.logger.info("\n%s", self.controller.describe())
-            self.controller.start_watchdog(1800)
-            self.logger.info("Started 30 minute watchdog")
+
+            self.controller.start_watchdog(self.watchdog)
+            self.logger.info("Started %d minute watchdog",
+                             self.watchdog)
         except ControlPointError as error:
             self.logger.info("ControlPoint initiation failed")
             raise ConfigEntryNotReady(error) from error
@@ -93,9 +96,22 @@ class ZimiController:
 
         return True
 
-    @property
+    @ property
     def verbosity(self) -> int:
         """Return the verbosity of this hub."""
-        if self.config.data[VERBOSITY] == None:
-            self.config.data[VERBOSITY] = 1
-        return self.config.data[VERBOSITY]
+        try:
+            if self.config.data[VERBOSITY] == None:
+                self.config.data[VERBOSITY] = 1
+            return self.config.data[VERBOSITY]
+        except KeyError:
+            return 1
+
+    @ property
+    def watchdog(self) -> int:
+        """Return the watchdog timer of this hub."""
+        try:
+            if self.config.data[WATCHDOG] == None:
+                self.config.data[WATCHDOG] = 1800
+            return self.config.data[WATCHDOG]
+        except KeyError:
+            return 1800
