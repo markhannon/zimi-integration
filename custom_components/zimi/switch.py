@@ -107,4 +107,4 @@ class ZimiSwitch(SwitchEntity):
         self._state = self._switch.is_on
         self._attr_is_on = self._switch.is_on
 
-        self.logger.debug("update(%s) with state=%s", self.name, self._state)
+        # self.logger.debug("update(%s) with state=%s", self.name, self._state)

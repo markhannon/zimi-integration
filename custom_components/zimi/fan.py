@@ -149,5 +149,5 @@ class ZimiFan(FanEntity):
         self._name = self._fan.name
         self._speed = self._fan.fanspeed
 
-        self.logger.debug("update(%s) with: speed=%s",
-                          self.name, str(self._speed))
+        # self.logger.debug("update(%s) with: speed=%s",
+        #                   self.name, str(self._speed))

@@ -149,4 +149,4 @@ class ZimiLight(LightEntity):
             if self._light.brightness:
                 self._brightness = self._light.brightness * 255 / 100
 
-        self.logger.debug("update(%s) with state=%s", self.name, self._state)
+        # self.logger.debug("update(%s) with state=%s", self.name, self._state)

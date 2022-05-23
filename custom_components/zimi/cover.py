@@ -135,7 +135,8 @@ class ZimiCover(CoverEntity):
         """Open the cover/door to a specified percentage."""
         position = kwargs.get("position", None)
         if position:
-            self.logger.debug("set_cover_position(%d) for %s", position, self.name)
+            self.logger.debug("set_cover_position(%d) for %s",
+                              position, self.name)
             await self._cover.open_to_percentage(position)
 
     def update(self) -> None:
@@ -152,9 +153,9 @@ class ZimiCover(CoverEntity):
         else:
             self._state = STATE_CLOSING
 
-        self.logger.debug(
-            "update(%s) with: position=%s, state=%s",
-            self.name,
-            str(self._position),
-            self._state,
-        )
+        # self.logger.debug(
+        #     "update(%s) with: position=%s, state=%s",
+        #     self.name,
+        #     str(self._position),
+        #     self._state,
+        # )

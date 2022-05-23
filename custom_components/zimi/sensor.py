@@ -157,5 +157,5 @@ class ZimiSensor(SensorEntity):
         else:
             self._name = self.entity_description.name
 
-        self.logger.debug("update(%s) with: %s",
-                          self.name, self._state)
+        # self.logger.debug("update(%s) with: %s",
+        #                   self.name, self._state)
