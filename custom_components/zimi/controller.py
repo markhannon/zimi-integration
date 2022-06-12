@@ -1,6 +1,7 @@
 """Zimi Controller wrapper class device."""
 import logging
 import pprint
+import socket
 
 from zcc import (
     ControlPoint,
@@ -66,15 +67,14 @@ class ZimiController:
                 self.port,
                 self.verbosity,
                 self.timeout,
-                self.watchdog
+                self.watchdog,
             )
             if self.host == "":
                 description = await ControlPointDiscoveryService().discover()
                 # self.config.data[CONF_HOST] = description.host
                 # self.config.data[CONF_PORT] = description.port
             else:
-                description = ControlPointDescription(
-                    host=self.host, port=self.port)
+                description = ControlPointDescription(host=self.host, port=self.port)
 
             self.controller = ControlPoint(
                 description=description, verbosity=self.verbosity, timeout=self.timeout
@@ -84,19 +84,17 @@ class ZimiController:
             self.logger.info("\n%s", self.controller.describe())
 
             self.controller.start_watchdog(self.watchdog)
-            self.logger.info("Started %d minute watchdog",
-                             self.watchdog)
+            self.logger.info("Started %d minute watchdog", self.watchdog)
         except ControlPointError as error:
             self.logger.info("ControlPoint initiation failed")
             raise ConfigEntryNotReady(error) from error
 
         if self.controller:
-            self.hass.config_entries.async_setup_platforms(
-                self.config, PLATFORMS)
+            self.hass.config_entries.async_setup_platforms(self.config, PLATFORMS)
 
         return True
 
-    @ property
+    @property
     def verbosity(self) -> int:
         """Return the verbosity of this hub."""
         try:
@@ -106,7 +104,7 @@ class ZimiController:
         except KeyError:
             return 1
 
-    @ property
+    @property
     def watchdog(self) -> int:
         """Return the watchdog timer of this hub."""
         try:
