@@ -83,8 +83,9 @@ class ZimiController:
             self.logger.info("ControlPoint inititation completed")
             self.logger.info("\n%s", self.controller.describe())
 
-            self.controller.start_watchdog(self.watchdog)
-            self.logger.info("Started %d minute watchdog", self.watchdog)
+            if self.watchdog > 0:
+                self.controller.start_watchdog(self.watchdog)
+                self.logger.info("Started %d minute watchdog", self.watchdog)
         except ControlPointError as error:
             self.logger.info("ControlPoint initiation failed")
             raise ConfigEntryNotReady(error) from error
@@ -112,4 +113,4 @@ class ZimiController:
                 self.config.data[WATCHDOG] = 1800
             return self.config.data[WATCHDOG]
         except KeyError:
-            return 1800
+            return 0
