@@ -33,11 +33,22 @@ custom_components/zimi/cover.py
 custom_components/zimi/fan.py
 custom_components/zimi/light.py
 custom_components/zimi/manifest.json
+custom_components/zimi/sensor.json
 custom_components/zimi/strings.json
 custom_components/zimi/switch.py
 ```
 
 ## Configuration is done in the UI
+
+### Configuration Options
+
+The following configuration options are shown when adding a new ZIMI integration:
+Option | Value
+`host` | hostname for ZCC or leave blank to attempt to discover on network
+`port` | port number for manually configured ZCC host
+`timeout` | TCP/IP socket timeout value - leave as is
+`verbosity` | level of debug output between 0 and 2.   1 is a good setting.
+`watchdog` | number of seconds between refresh of the connection or 0 if not used
 
 ### Automatic setup via UDP discovery
 The integration can attempt to discover a ZCC device on the local network if the user does not enter data into the IP Address and Port fields. If a ZCC is discovered, the IP address and port will be used to interrogate the ZCC to identify all ControlPoints. This data includes Properties, States and Actions which is used to create an Entities within Home Assistant.
@@ -63,7 +74,7 @@ Entities will be created in Home Assistant based naming in the Zimi App. Some co
 - Entity name in Home Assistant will be the ControlPoint Name in the Zimi App
 - Entity ID in Home Assistant will be `type.name` (i.e. switch.downlights)
 
-If the same name is given to multiple ControlPoints a numeric will automatically be appended during the creation of the Entity. For example, if Downlights is used in the Zimi App to identify similar devices in multiple rooms the Entity ID(s) in Home Assistant would be: 
+If the same name is given to multiple ControlPoints a numeric will automatically be appended during the creation of the Entity. For example, if Downlights is used in the Zimi App to identify similar devices in multiple rooms the Entity ID(s) in Home Assistant would be:
   - light.downlights
   - light.downlights_2
   - light.downlights_3

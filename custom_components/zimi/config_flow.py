@@ -22,8 +22,8 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
         vol.Optional(CONF_HOST, default=""): str,
         vol.Optional(CONF_PORT, default=5003): int,
         vol.Optional(TIMEOUT, default=3): int,
-        vol.Optional(VERBOSITY, default=2): int,
-        vol.Optional(WATCHDOG, default=0): int,
+        vol.Optional(VERBOSITY, default=1): int,
+        vol.Optional(WATCHDOG, default=1800): int,
     }
 )
 
@@ -35,7 +35,7 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
         data[TIMEOUT] = 3
 
     if data[VERBOSITY] == None:
-        data[VERBOSITY] = 2
+        data[VERBOSITY] = 1
 
     if data[WATCHDOG] == None:
         data[WATCHDOG] = 1800
