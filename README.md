@@ -43,7 +43,9 @@ custom_components/zimi/switch.py
 ### Configuration Options
 
 The following configuration options are shown when adding a new ZIMI integration:
+
 Option | Value
+-- | --
 `host` | hostname for ZCC or leave blank to attempt to discover on network
 `port` | port number for manually configured ZCC host
 `timeout` | TCP/IP socket timeout value - leave as is
