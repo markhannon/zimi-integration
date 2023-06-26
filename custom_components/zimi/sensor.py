@@ -124,7 +124,7 @@ class ZimiSensor(SensorEntity):
     @property
     def name(self) -> str:
         """Return the display name of this cover."""
-        return self._name
+        return self._name.strip()
 
     def notify(self, _observable):
         """Receive notification from sensor device that state has changed."""

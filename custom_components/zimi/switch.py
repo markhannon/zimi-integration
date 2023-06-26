@@ -73,7 +73,7 @@ class ZimiSwitch(SwitchEntity):
     @property
     def name(self) -> str:
         """Return the display name of this switch."""
-        return self._name
+        return self._name.strip()
 
     @property
     def is_on(self) -> bool:

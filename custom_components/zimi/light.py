@@ -83,7 +83,7 @@ class ZimiLight(LightEntity):
     @property
     def name(self) -> str:
         """Return the display name of this light."""
-        return self._name
+        return self._name.strip()
 
     @property
     def available(self) -> bool:
