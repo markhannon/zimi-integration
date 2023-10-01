@@ -1,7 +1,6 @@
 """Zimi Controller wrapper class device."""
 import logging
 import pprint
-import socket
 
 from zcc import (
     ControlPoint,
@@ -37,11 +36,6 @@ class ZimiController:
         hass.data.setdefault(DOMAIN, {})[self.config.entry_id] = self
 
     @property
-    def debug(self) -> bool:
-        """Return the debug flag for this hub."""
-        return self.config.data.get(DEBUG, False)
-
-    @property
     def host(self) -> str:
         """Return the host of this hub."""
         return self.config.data[CONF_HOST]
@@ -54,8 +48,6 @@ class ZimiController:
     @property
     def timeout(self) -> int:
         """Return the timeout of this hub."""
-        if self.config.data[TIMEOUT] == 0:
-            self.config.data[TIMEOUT] = 3
         return self.config.data[TIMEOUT]
 
     async def connect(self) -> bool:
@@ -71,11 +63,8 @@ class ZimiController:
             )
             if self.host == "":
                 description = await ControlPointDiscoveryService().discover()
-                # self.config.data[CONF_HOST] = description.host
-                # self.config.data[CONF_PORT] = description.port
             else:
-                description = ControlPointDescription(
-                    host=self.host, port=self.port)
+                description = ControlPointDescription(host=self.host, port=self.port)
 
             self.controller = ControlPoint(
                 description=description, verbosity=self.verbosity, timeout=self.timeout
@@ -88,32 +77,24 @@ class ZimiController:
                 self.controller.start_watchdog(self.watchdog)
                 self.logger.info("Started %d minute watchdog", self.watchdog)
         except ControlPointError as error:
-            self.logger.info("ControlPoint initiation failed")
+            self.logger.info("ControlPoint initiation failed: %s", error)
             raise ConfigEntryNotReady(error) from error
 
         if self.controller:
             # self.hass.config_entries.async_setup_platforms(self.config, PLATFORMS)
             self.hass.data[CONTROLLER] = self
-            await self.hass.config_entries.async_forward_entry_setups(self.config, PLATFORMS)
+            await self.hass.config_entries.async_forward_entry_setups(
+                self.config, PLATFORMS
+            )
 
         return True
 
     @property
     def verbosity(self) -> int:
         """Return the verbosity of this hub."""
-        try:
-            if self.config.data[VERBOSITY] == None:
-                self.config.data[VERBOSITY] = 1
-            return self.config.data[VERBOSITY]
-        except KeyError:
-            return 1
+        return self.config.data[VERBOSITY]
 
     @property
     def watchdog(self) -> int:
         """Return the watchdog timer of this hub."""
-        try:
-            if self.config.data[WATCHDOG] == None:
-                self.config.data[WATCHDOG] = 1800
-            return self.config.data[WATCHDOG]
-        except KeyError:
-            return 0
+        return self.config.data[WATCHDOG]

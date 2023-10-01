@@ -5,21 +5,13 @@ import logging
 import math
 from typing import Any
 
-from homeassistant.components.fan import (
-    DIRECTION_FORWARD,
-    DIRECTION_REVERSE,
-    SUPPORT_DIRECTION,
-    SUPPORT_SET_SPEED,
-    FanEntity,
-)
-
+from homeassistant.components.fan import FanEntity, FanEntityFeature
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity import DeviceInfo
+from homeassistant.helpers.device_registry import DeviceInfo
 
 # Import the device class from the component that you want to support
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-
 from homeassistant.util.percentage import (
     int_states_in_range,
     percentage_to_ranged_value,
@@ -62,7 +54,7 @@ class ZimiFan(FanEntity):
 
         self._attr_unique_id = fan.identifier
         self._attr_should_poll = False
-        self._attr_supported_features = SUPPORT_SET_SPEED
+        self._attr_supported_features = FanEntityFeature.SET_SPEED
         self._fan = fan
         self._fan.subscribe(self)
         self._attr_device_info = DeviceInfo(
@@ -80,8 +72,7 @@ class ZimiFan(FanEntity):
 
     async def async_set_percentage(self, percentage: int) -> None:
         """Set the desired speed for the fan."""
-        self.logger.debug(
-            "async_set_percentage() with percentage %s", percentage)
+        self.logger.debug("async_set_percentage() with percentage %s", percentage)
 
         if percentage == 0:
             await self.async_turn_off()
@@ -98,7 +89,12 @@ class ZimiFan(FanEntity):
 
         await self._fan.set_fanspeed(target_speed)
 
-    async def async_turn_on(self, **kwargs: Any) -> None:
+    async def async_turn_on(
+        self,
+        percentage: int | None = None,
+        preset_mode: str | None = None,
+        **kwargs: Any,
+    ) -> None:
         """Instruct the fan to turn on."""
 
         self.logger.debug("turn_on() for %s", self.name)
@@ -112,7 +108,7 @@ class ZimiFan(FanEntity):
 
     @property
     def available(self) -> bool:
-        """Return True if Home Assistant is able to read the state and control the underlying device"""
+        """Return True if Home Assistant is able to read the state and control the underlying device."""
         return self._fan.is_connected
 
     @property

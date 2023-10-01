@@ -7,7 +7,7 @@ from typing import Any
 from homeassistant.components.switch import SwitchDeviceClass, SwitchEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity import DeviceInfo
+from homeassistant.helpers.device_registry import DeviceInfo
 
 # Import the device class from the component that you want to support
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -67,7 +67,7 @@ class ZimiSwitch(SwitchEntity):
 
     @property
     def available(self) -> bool:
-        """Return True if Home Assistant is able to read the state and control the underlying device"""
+        """Return True if Home Assistant is able to read the state and control the underlying device."""
         return self._switch.is_connected
 
     @property

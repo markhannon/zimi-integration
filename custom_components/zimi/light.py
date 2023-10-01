@@ -4,25 +4,16 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from homeassistant.components.light import (
-    ATTR_BRIGHTNESS,
-    COLOR_MODE_BRIGHTNESS,
-    SUPPORT_BRIGHTNESS,
-    LightEntity,
-)
+from homeassistant.components.light import ATTR_BRIGHTNESS, ColorMode, LightEntity
 from homeassistant.config_entries import ConfigEntry
-
-# from homeassistant.const import CONF_HOST, CONF_PORT
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity import DeviceInfo
+from homeassistant.helpers.device_registry import DeviceInfo
 
 # Import the device class from the component that you want to support
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import CONTROLLER, DOMAIN
 from .controller import ZimiController
-
-# from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 
 
 async def async_setup_entry(
@@ -66,8 +57,7 @@ class ZimiLight(LightEntity):
         self._state = False
         self._brightness = None
         if self._light.type == "dimmer":
-            self._attr_supported_color_modes = {COLOR_MODE_BRIGHTNESS}
-            self._attr_supported_features = SUPPORT_BRIGHTNESS
+            self._attr_supported_color_modes = {ColorMode.BRIGHTNESS}
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, light.identifier)},
             name=self._light.name,
@@ -87,7 +77,7 @@ class ZimiLight(LightEntity):
 
     @property
     def available(self) -> bool:
-        '''Return True if Home Assistant is able to read the state and control the underlying device'''
+        """Return True if Home Assistant is able to read the state and control the underlying device."""
         return self._light.is_connected
 
     @property

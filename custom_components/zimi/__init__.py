@@ -8,7 +8,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
 
-from .const import CONTROLLER, DOMAIN, PLATFORMS, VERBOSITY
+from .const import CONTROLLER, DOMAIN, VERBOSITY
 from .controller import ZimiController
 
 _LOGGER = logging.getLogger(__name__)
