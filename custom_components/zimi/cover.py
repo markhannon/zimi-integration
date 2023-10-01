@@ -15,7 +15,7 @@ from homeassistant.components.cover import (
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.device_registry import DeviceInfo
+from homeassistant.helpers.entity import DeviceInfo
 
 # Import the device class from the component that you want to support
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -132,7 +132,8 @@ class ZimiCover(CoverEntity):
         """Open the cover/door to a specified percentage."""
         position = kwargs.get("position", None)
         if position:
-            self.logger.debug("set_cover_position(%d) for %s", position, self.name)
+            self.logger.debug("set_cover_position(%d) for %s",
+                              position, self.name)
             await self._cover.open_to_percentage(position)
 
     def update(self) -> None:

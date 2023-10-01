@@ -8,7 +8,7 @@ from typing import Any
 from homeassistant.components.fan import FanEntity, FanEntityFeature
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.device_registry import DeviceInfo
+from homeassistant.helpers.entity import DeviceInfo
 
 # Import the device class from the component that you want to support
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -72,7 +72,8 @@ class ZimiFan(FanEntity):
 
     async def async_set_percentage(self, percentage: int) -> None:
         """Set the desired speed for the fan."""
-        self.logger.debug("async_set_percentage() with percentage %s", percentage)
+        self.logger.debug(
+            "async_set_percentage() with percentage %s", percentage)
 
         if percentage == 0:
             await self.async_turn_off()
