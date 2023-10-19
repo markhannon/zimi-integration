@@ -4,17 +4,10 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from homeassistant.components.light import (
-    ATTR_BRIGHTNESS,
-    COLOR_MODE_BRIGHTNESS,
-    SUPPORT_BRIGHTNESS,
-    LightEntity,
-)
+from homeassistant.components.light import ATTR_BRIGHTNESS, ColorMode, LightEntity
 from homeassistant.config_entries import ConfigEntry
-
-# from homeassistant.const import CONF_HOST, CONF_PORT
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity import DeviceInfo
+from homeassistant.helpers.device_registry import DeviceInfo
 
 # Import the device class from the component that you want to support
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -22,7 +15,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from .const import CONTROLLER, DOMAIN
 from .controller import ZimiController
 
-# from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
+_LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(
@@ -55,9 +48,8 @@ class ZimiLight(LightEntity):
     def __init__(self, light, debug=False) -> None:
         """Initialize an ZimiLight."""
 
-        self.logger = logging.getLogger(__name__)
         if debug:
-            self.logger.setLevel(logging.DEBUG)
+            _LOGGER.setLevel(logging.DEBUG)
 
         self._attr_unique_id = light.identifier
         self._attr_should_poll = False
@@ -66,15 +58,14 @@ class ZimiLight(LightEntity):
         self._state = False
         self._brightness = None
         if self._light.type == "dimmer":
-            self._attr_supported_color_modes = {COLOR_MODE_BRIGHTNESS}
-            self._attr_supported_features = SUPPORT_BRIGHTNESS
+            self._attr_supported_color_modes = {ColorMode.BRIGHTNESS}
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, light.identifier)},
             name=self._light.name,
             suggested_area=self._light.room,
         )
         self.update()
-        self.logger.debug("__init__(%s) in %s", self.name, self._light.room)
+        _LOGGER.debug("Initialising %s in %s", self.name, self._light.room)
 
     def __del__(self):
         """Cleanup ZimiLight with removal of notification."""
@@ -87,7 +78,7 @@ class ZimiLight(LightEntity):
 
     @property
     def available(self) -> bool:
-        '''Return True if Home Assistant is able to read the state and control the underlying device'''
+        """Return True if Home Assistant is able to read the state and control the underlying device."""
         return self._light.is_connected
 
     @property
@@ -111,8 +102,8 @@ class ZimiLight(LightEntity):
         brightness control.
         """
 
-        self.logger.debug(
-            "turn_on(brightness=%d) for %s",
+        _LOGGER.debug(
+            "Sending turn_on(brightness=%d) for %s",
             kwargs.get(ATTR_BRIGHTNESS, 255) * 100 / 255,
             self.name,
         )
@@ -127,14 +118,14 @@ class ZimiLight(LightEntity):
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Instruct the light to turn off."""
 
-        self.logger.debug("turn_off() for %s", self.name)
+        _LOGGER.debug("Sending turn_off() for %s", self.name)
 
         await self._light.turn_off()
 
     def notify(self, _observable):
         """Receive notification from light device that state has changed."""
 
-        self.logger.debug("notification() for %s received", self.name)
+        _LOGGER.debug("Received notification() for %s", self.name)
         self.schedule_update_ha_state(force_refresh=True)
 
     def update(self) -> None:
@@ -148,5 +139,3 @@ class ZimiLight(LightEntity):
         if self._light.type == "dimmer":
             if self._light.brightness:
                 self._brightness = self._light.brightness * 255 / 100
-
-        # self.logger.debug("update(%s) with state=%s", self.name, self._state)
