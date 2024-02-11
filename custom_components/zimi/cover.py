@@ -58,7 +58,12 @@ class ZimiCover(CoverEntity):
         self._attr_unique_id = cover.identifier
         self._attr_should_poll = False
         self._attr_device_class = CoverDeviceClass.GARAGE
-        self._attr_supported_features = CoverEntityFeature.SET_TILT_POSITION
+        self._attr_supported_features = (
+            CoverEntityFeature.OPEN
+            + CoverEntityFeature.CLOSE
+            + CoverEntityFeature.SET_POSITION
+            + CoverEntityFeature.STOP
+        )
 
         self._cover = cover
         self._cover.subscribe(self)
@@ -133,7 +138,8 @@ class ZimiCover(CoverEntity):
         """Open the cover/door to a specified percentage."""
         position = kwargs.get("position", None)
         if position:
-            _LOGGER.debug("Sending set_cover_position(%d) for %s", position, self.name)
+            _LOGGER.debug("Sending set_cover_position(%d) for %s",
+                          position, self.name)
             await self._cover.open_to_percentage(position)
 
     def update(self) -> None:
