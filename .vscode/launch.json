@@ -3,7 +3,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Python: Start Home Assistant",
+      "name": "Python: Start HA",
       "type": "python",
       "request": "launch",
       "program": "${workspaceFolder}/.venv/bin/hass",
@@ -11,7 +11,22 @@
       "args": [
         "-c",
         ".venv/config",
-      ]
+      ],
+    },
+    {
+      "name": "Python: Start HA (Debug HA)",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/.venv/bin/hass",
+      "console": "integratedTerminal",
+      "args": [
+        "-c",
+        ".venv/config",
+      ],
+      "purpose": [
+        "debug-in-terminal"
+      ],
+      "justMyCode": false
     }
   ]
 }
