@@ -5,7 +5,7 @@
 # 2.Downstream merge is done in this repo by running this script to copy latest  
 
 MERGE_BRANCH=upstream
-UPSTREAM_REPO=../core-zimi
+UPSTREAM_REPO=../core-integration-zimi
 UPSTREAM_BRANCH=zimi
 
 echo Updating upstream repo
@@ -15,7 +15,7 @@ echo Updating upstream repo
 echo Importing zimi contents into $MERGE_BRANCH branch
 git checkout -b $MERGE_BRANCH
 cp ${UPSTREAM_REPO}/homeassistant/components/zimi/*.py custom_components/zimi
-git add custome_components/zimi/*
+git add custom_components/zimi/*
 git commit -m 'Merge of latest upstream'
 
 echo Checking git status
