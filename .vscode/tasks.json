@@ -2,15 +2,27 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Setup Home Assistant",
+            "label": "Setup Home Assistant (shell)",
             "type": "shell",
             "command": "./hass.sh",
             "problemMatcher": []
         },
         {
-            "label": "Run Home Assistant (localhost:8123)",
+            "label": "Setup Home Assistant (batch)",
+            "type": "shell",
+            "command": "./hass.cmd",
+            "problemMatcher": []
+        },
+        {
+            "label": "Run Home Assistant (shell)",
             "type": "shell",
             "command": "./hass.sh --execute",
+            "problemMatcher": []
+        },
+        {
+            "label": "Run Home Assistant (batch)",
+            "type": "shell",
+            "command": "./hass.cmd --execute",
             "problemMatcher": []
         }
     ]

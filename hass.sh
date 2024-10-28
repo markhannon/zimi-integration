@@ -13,6 +13,6 @@ echo "Creating config and symlinking custom_components"
 (cd .venv/config; ln -s ../../custom_components)
 
 if [ "$1" == "--execute" ]; then
-    echo "Starting HA"
+    echo "Starting HA on localhost:8123"
     .venv/bin/hass -c .venv/config
 fi

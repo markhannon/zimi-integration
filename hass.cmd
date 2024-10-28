@@ -11,5 +11,7 @@ cd .venv/config
 mklink /d  custom_components ../../custom_components
 cd ../..
 
-echo "Starting HA"
-.venv/bin/hass -c .venv/config
+IF "%1"=="--execute" (
+    echo "Starting HA on localhost:8123"
+    .venv/bin/hass -c .venv/config
+)
