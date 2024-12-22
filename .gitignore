@@ -5,3 +5,4 @@ venv
 .coverage
 .idea
 debug.txt
+tmp/
