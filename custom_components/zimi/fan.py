@@ -55,7 +55,10 @@ class ZimiFan(FanEntity):
 
         self._attr_unique_id = fan.identifier
         self._attr_should_poll = False
-        self._attr_supported_features = FanEntityFeature.SET_SPEED
+        self._attr_supported_features = (
+            FanEntityFeature.SET_SPEED
+            | FanEntityFeature.TURN_OFF
+            | FanEntityFeature.TURN_ON)
         self._fan = fan
         self._fan.subscribe(self)
         self._attr_device_info = DeviceInfo(
@@ -73,7 +76,8 @@ class ZimiFan(FanEntity):
 
     async def async_set_percentage(self, percentage: int) -> None:
         """Set the desired speed for the fan."""
-        _LOGGER.debug("Sending async_set_percentage() with percentage %s", percentage)
+        _LOGGER.debug(
+            "Sending async_set_percentage() with percentage %s", percentage)
 
         if percentage == 0:
             await self.async_turn_off()
