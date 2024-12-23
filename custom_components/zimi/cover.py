@@ -142,6 +142,12 @@ class ZimiCover(CoverEntity):
                           position, self.name)
             await self._cover.open_to_percentage(position)
 
+    async def async_stop_cover(self, **kwargs: Any) -> None:
+        """Stop the cover."""
+        _LOGGER.debug(
+            "Stopping open_cover() by setting to current position for %s", self.name)
+        await self.async_set_cover_position(position=self.current_cover_position)
+
     def update(self) -> None:
         """Fetch new state data for this cover."""
 
