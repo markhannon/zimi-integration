@@ -1,9 +1,14 @@
 """Constants for the zcc integration."""
 
+from homeassistant.const import Platform
+
 CONTROLLER = "zimi_controller"
 DOMAIN = "zimi"
-PLATFORMS = ["light", "sensor", "switch", "cover", "fan"]
-
-TIMEOUT = "timeout"
-VERBOSITY = "verbosity"
-WATCHDOG = "watchdog"
+PLATFORMS = [
+    Platform.COVER,
+    Platform.FAN,
+    Platform.LIGHT,
+    Platform.SENSOR,
+    Platform.SWITCH,
+]
+TITLE = "ZIMI Controller"
