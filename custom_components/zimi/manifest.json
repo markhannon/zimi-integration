@@ -3,7 +3,7 @@
   "name": "zimi",
   "config_flow": true,
   "documentation": "https://www.home-assistant.io/integrations/zimi",
-  "version": "1.4.3-dev2",
+  "version": "1.4.3",
   "requirements": [
     "zcc-helper==3.2.2"
   ],
