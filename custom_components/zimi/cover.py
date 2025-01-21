@@ -71,7 +71,7 @@ class ZimiCover(ZimiEntity, CoverEntity):
     @property
     def is_closed(self) -> bool | None:
         """Return true if cover is closed."""
-        return self._device.is_closed
+        return self._device.is_closed or self._device.percentage < 5
 
     @property
     def is_closing(self) -> bool | None:
@@ -86,7 +86,7 @@ class ZimiCover(ZimiEntity, CoverEntity):
     @property
     def is_open(self) -> bool | None:
         """Return true if cover is open."""
-        return self._device.is_open
+        return self._device.is_open or self._device.percentage > 95
 
     async def async_open_cover(self, **kwargs: Any) -> None:
         """Open the cover/door."""
