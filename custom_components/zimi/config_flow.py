@@ -7,144 +7,182 @@ import logging
 import socket
 from typing import Any
 
+from strenum import StrEnum
 import voluptuous as vol
-from zcc import ControlPoint, ControlPointDiscoveryService, ControlPointError
+from zcc import (
+    ControlPoint,
+    ControlPointDescription,
+    ControlPointDiscoveryService,
+    ControlPointError,
+)
 
-from homeassistant import config_entries
+from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
 from homeassistant.const import CONF_HOST, CONF_MAC, CONF_PORT
-from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.device_registry import format_mac
+from homeassistant.helpers.selector import (
+    SelectOptionDict,
+    SelectSelector,
+    SelectSelectorConfig,
+    SelectSelectorMode,
+)
 
 from . import async_connect_to_controller
-from .const import DOMAIN, TITLE
+from .const import DEFAULT_PORT, DOMAIN, TITLE
 
 _LOGGER = logging.getLogger(__name__)
 
 STEP_USER_DATA_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_HOST, default=""): str,
-        vol.Required(CONF_PORT, default=5003): int,
-        vol.Required(CONF_MAC, default=""): str,
+        vol.Required(CONF_PORT, default=DEFAULT_PORT): int,
     }
 )
 
+SELECTED_HOST_AND_PORT = "selected_host_and_port"
 
-class ZimiConfigException(Exception):
-    """Base class for ZimiConfig exceptions."""
 
+class ZimiConfigErrors(StrEnum):
+    """ZimiConfig errors."""
+
+    ALREADY_CONFIGURED = "already_configured"
     CANNOT_CONNECT = "cannot_connect"
     CONNECTION_REFUSED = "connection_refused"
     DISCOVERY_FAILURE = "discovery_failure"
     INVALID_HOST = "invalid_host"
-    INVALID_MAC = "invalid_mac"
-    MISMATCHED_MAC = "mismatched_mac"
+    INVALID_PORT = "invalid_port"
     TIMEOUT = "timeout"
     UNKNOWN = "unknown"
 
-    def __init__(self, *args, **kwargs) -> None:
-        """Initialise ZimiConfigException allowing passing of error_detail."""
-        super().__init__(*args)
-        self.error_base = args[0]
-        try:
-            self.error_detail = args[1]
-        except IndexError:
-            self.error_detail = None
 
-
-class ZimiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+class ZimiConfigFlow(ConfigFlow, domain=DOMAIN):
     """Handle a config flow for zcc."""
 
-    api: ControlPoint | None = None
+    api: ControlPoint = None
+    api_descriptions: list[ControlPointDescription]
+    data: dict[str, Any]
+
+    def __del__(self):
+        """Disconnect from ZCC."""
+        if self.api:
+            self.api.disconnect()
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
-    ) -> config_entries.ConfigFlowResult:
+    ) -> ConfigFlowResult:
         """Handle the initial auto-discovery step."""
 
-        data: dict[str, Any] = {}
-        errors: dict[str, str] = {}
-        description = None
-        description_placeholders: dict[str, str] = {}
+        self.data = {}
 
         try:
-            description = await ControlPointDiscoveryService().discover()
-        except ControlPointError as _:
-            errors["base"] = ZimiConfigException.DISCOVERY_FAILURE
+            self.api_descriptions = await ControlPointDiscoveryService().discovers()
+        except ControlPointError as e:
+            _LOGGER.error(e)
+            return await self.async_step_manual()
 
-        if description:
-            data[CONF_HOST] = description.host
-            data[CONF_PORT] = description.port
+        if len(self.api_descriptions) == 1:
+            self.data[CONF_HOST] = self.api_descriptions[0].host
+            self.data[CONF_PORT] = self.api_descriptions[0].port
+            return await self.create_entry()
 
-            with contextlib.suppress(ControlPointError):
-                self.api = await async_connect_to_controller(
-                    data[CONF_HOST], data[CONF_PORT], fast=True
-                )
+        return await self.async_step_selection()
 
-            if self.api and self.api.ready:
-                data[CONF_MAC] = self.api.mac
-
-        return self.async_show_form(
-            step_id="finish",
-            data_schema=self.add_suggested_values_to_schema(
-                STEP_USER_DATA_SCHEMA, data
-            ),
-            errors=errors,
-            description_placeholders=description_placeholders,
-        )
-
-    async def async_step_finish(
+    async def async_step_selection(
         self, user_input: dict[str, Any] | None = None
-    ) -> config_entries.ConfigFlowResult:
-        """Handle the final step."""
+    ) -> ConfigFlowResult:
+        """Handle selection of zcc to configure if multiple are discovered."""
 
-        data: dict[str, Any] = {}
         errors: dict[str, str] = {}
-        description_placeholders: dict[str, str] = {}
 
         if user_input is not None:
-            data[CONF_HOST] = user_input[CONF_HOST]
-            data[CONF_PORT] = user_input[CONF_PORT]
-            data[CONF_MAC] = user_input[CONF_MAC]
+            self.data[CONF_HOST] = user_input[SELECTED_HOST_AND_PORT].split(":")[0]
+            self.data[CONF_PORT] = int(user_input[SELECTED_HOST_AND_PORT].split(":")[1])
+            return await self.create_entry()
 
-            try:
-                self.check_host_and_port(data[CONF_HOST], data[CONF_PORT])
-                await self.check_mac(data[CONF_HOST], data[CONF_PORT], data[CONF_MAC])
-            except ZimiConfigException as e:
-                _LOGGER.error(e)
-                errors["base"] = e.error_base
-                if e.error_detail:
-                    _LOGGER.error(e.error_detail)
-                    description_placeholders["error_detail"] = e.error_detail
-            except ConfigEntryNotReady as _:
-                raise
+        available_options = [
+            SelectOptionDict(
+                label=f"{description.host}:{description.port}",
+                value=f"{description.host}:{description.port}",
+            )
+            for description in self.api_descriptions
+        ]
 
-            if self.api:
-                self.api.disconnect()
-
-            if not errors:
-                await self.async_set_unique_id(data[CONF_MAC])
-                self._abort_if_unique_id_configured()
-                return self.async_create_entry(title=TITLE, data=data)
-
-        return self.async_show_form(
-            step_id="finish",
-            data_schema=self.add_suggested_values_to_schema(
-                STEP_USER_DATA_SCHEMA, data
-            ),
-            errors=errors,
-            description_placeholders=description_placeholders,
+        available_schema = vol.Schema(
+            {
+                vol.Required(
+                    SELECTED_HOST_AND_PORT, default=available_options[0]["value"]
+                ): SelectSelector(
+                    SelectSelectorConfig(
+                        options=available_options,
+                        mode=SelectSelectorMode.DROPDOWN,
+                    )
+                )
+            }
         )
 
-    def check_host_and_port(self, host: str, port: int):
-        """Check connectivity to configured host and port.
+        return self.async_show_form(
+            step_id="selection", data_schema=available_schema, errors=errors
+        )
 
-        Raise ZimiConfigExceptions if needed.
+    async def async_step_manual(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Handle manual configuration step if needed."""
+
+        errors: dict[str, str] = {}
+
+        if user_input is not None:
+            self.data = {**self.data, **user_input}
+
+            errors = await self.validate_connection(
+                self.data[CONF_HOST], self.data[CONF_PORT]
+            )
+
+            if not errors:
+                return await self.create_entry()
+
+        return self.async_show_form(
+            step_id="manual",
+            data_schema=self.add_suggested_values_to_schema(
+                STEP_USER_DATA_SCHEMA, self.data
+            ),
+            errors=errors,
+        )
+
+    async def create_entry(self) -> ConfigFlowResult:
+        """Create entry for zcc."""
+
+        if not self.api:
+            with contextlib.suppress(ControlPointError):
+                self.api = await async_connect_to_controller(
+                    self.data[CONF_HOST], self.data[CONF_PORT], fast=False
+                )
+
+        if self.api and self.api.ready:
+            self.data[CONF_MAC] = format_mac(self.api.mac)
+            self.api.disconnect()
+            await self.async_set_unique_id(self.data[CONF_MAC])
+            self._abort_if_unique_id_configured()
+            return self.async_create_entry(
+                title=f"{TITLE} ({self.data[CONF_HOST]}:{self.data[CONF_PORT]})",
+                data=self.data,
+            )
+
+        return self.async_abort(reason="cannot_connect")
+
+    async def validate_connection(self, host: str, port: int) -> dict[str, str]:
+        """Check for errors with configuration.
+
+        1. Check connectivity to configured host and port; and
+        2. Connect to ZCC to get mac address and store in self.data
+
+        Return error dictionary upon failure.
         """
 
         try:
             hostbyname = socket.gethostbyname(host)
         except socket.gaierror as e:
-            raise ZimiConfigException(ZimiConfigException.INVALID_HOST) from e
+            _LOGGER.error(e)
+            return {"base": ZimiConfigErrors.INVALID_HOST}
         if hostbyname:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             s.settimeout(10)
@@ -152,35 +190,26 @@ class ZimiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 s.connect((host, port))
                 s.close()
             except ConnectionRefusedError as e:
-                raise ZimiConfigException(ZimiConfigException.CONNECTION_REFUSED) from e
+                _LOGGER.error(e)
+                return {"base": ZimiConfigErrors.CONNECTION_REFUSED}
             except TimeoutError as e:
-                raise ZimiConfigException(ZimiConfigException.TIMEOUT) from e
+                _LOGGER.error(e)
+                return {"base": ZimiConfigErrors.TIMEOUT}
             except socket.gaierror as e:
-                raise ZimiConfigException(ZimiConfigException.CANNOT_CONNECT) from e
+                _LOGGER.error(e)
+                return {"base": ZimiConfigErrors.CANNOT_CONNECT}
         else:
-            raise ZimiConfigException(ZimiConfigException.INVALID_HOST)
-
-    async def check_mac(self, host: str, port: int, mac: str):
-        """Check mac address is valid for configured host, port and mac.
-
-        Raise ZimiConfigException if needed.
-        """
-
-        if mac is format_mac(mac):
-            raise ZimiConfigException(ZimiConfigException.INVALID_MAC)
+            return {"base": ZimiConfigErrors.INVALID_HOST}
 
         if not self.api or not self.api.ready:
             try:
                 self.api = await async_connect_to_controller(host, port, fast=True)
             except ControlPointError as e:
-                raise ZimiConfigException(ZimiConfigException.CANNOT_CONNECT) from e
-            except ConfigEntryNotReady as _:
-                raise
+                _LOGGER.error(e)
+                return {"base": ZimiConfigErrors.CANNOT_CONNECT}
 
-        if self.api:
-            if format_mac(mac) != format_mac(self.api.mac):
-                msg = f"{format_mac(mac)} != {format_mac(self.api.mac)}"
-                _LOGGER.error("Configured mac mismatch: %s", msg)
-                raise ZimiConfigException(ZimiConfigException.MISMATCHED_MAC, msg)
-        else:
-            raise ZimiConfigException(ZimiConfigException.CANNOT_CONNECT)
+        self.data[CONF_MAC] = format_mac(self.api.mac)
+        self.api.disconnect()
+        self.api = None
+
+        return {}

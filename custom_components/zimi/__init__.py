@@ -47,11 +47,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ZimiConfigEntry) -> bool
         config_entry_id=entry.entry_id,
         identifiers={(DOMAIN, api.mac)},
         manufacturer=api.brand,
-        name=f"ZCC ({api.host}:{api.port})",
-        model=api.product,
-        model_id="Zimi Cloud Connect",
-        hw_version=api.firmware_version,
-        sw_version=api.api_version,
+        name=f"Controller ({api.host}:{api.port})",
+        model="Zimi Cloud Connect",
+        sw_version=api.firmware_version,
         connections={(CONNECTION_NETWORK_MAC, api.mac)},
     )
 

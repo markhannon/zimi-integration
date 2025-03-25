@@ -16,7 +16,7 @@ from homeassistant.const import PERCENTAGE, EntityCategory, UnitOfTemperature
 from homeassistant.core import HomeAssistant
 
 # Import the device class from the component that you want to support
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from . import ZimiConfigEntry
 from .entity import ZimiEntity
@@ -60,7 +60,7 @@ _LOGGER = logging.getLogger(__name__)
 async def async_setup_entry(
     hass: HomeAssistant,
     config_entry: ZimiConfigEntry,
-    async_add_entities: AddEntitiesCallback,
+    async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
     """Set up the Zimi Sensor platform."""
 
@@ -91,7 +91,7 @@ class ZimiSensor(ZimiEntity, SensorEntity):
         self._attr_unique_id = device.identifier + "." + self.entity_description.key
 
         _LOGGER.debug(
-            "Initialising ZimiSensor %s in %s", self._device.name, self._device.room
+            "Initialising ZimiSensor %s in %s", self._entity.name, self._entity.room
         )
 
     @property
@@ -99,15 +99,15 @@ class ZimiSensor(ZimiEntity, SensorEntity):
         """Return the state of the sensor."""
 
         if self.entity_description.key == SENSOR_KEY_DOOR_TEMP:
-            return self._device.door_temp
+            return self._entity.door_temp
 
         if self.entity_description.key == SENSOR_KEY_GARAGE_BATTERY:
-            return self._device.battery_level
+            return self._entity.battery_level
 
         if self.entity_description.key == SENSOR_KEY_GARAGE_HUMDITY:
-            return self._device.garage_humidity
+            return self._entity.garage_humidity
 
         if self.entity_description.key == SENSOR_KEY_GARAGE_TEMP:
-            return self._device.garage_temp
+            return self._entity.garage_temp
 
         return None

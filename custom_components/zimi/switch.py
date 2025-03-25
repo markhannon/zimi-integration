@@ -12,7 +12,7 @@ from homeassistant.components.switch import SwitchDeviceClass, SwitchEntity
 from homeassistant.core import HomeAssistant
 
 # Import the device class from the component that you want to support
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from . import ZimiConfigEntry
 from .entity import ZimiEntity
@@ -23,7 +23,7 @@ _LOGGER = logging.getLogger(__name__)
 async def async_setup_entry(
     hass: HomeAssistant,
     config_entry: ZimiConfigEntry,
-    async_add_entities: AddEntitiesCallback,
+    async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
     """Set up the Zimi Switch platform."""
 
@@ -46,28 +46,28 @@ class ZimiSwitch(ZimiEntity, SwitchEntity):
         super().__init__(device, api)
 
         _LOGGER.debug(
-            "Initialising ZimiSwitch %s in %s", self._device.name, self._device.room
+            "Initialising ZimiSwitch %s in %s", self._entity.name, self._entity.room
         )
 
     @property
     def is_on(self) -> bool:
         """Return true if switch is on."""
-        return self._device.is_on
+        return self._entity.is_on
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Instruct the switch to turn on."""
 
         _LOGGER.debug(
-            "Sending turn_on() for %s in %s", self._device.name, self._device.room
+            "Sending turn_on() for %s in %s", self._entity.name, self._entity.room
         )
 
-        await self._device.turn_on()
+        await self._entity.turn_on()
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Instruct the switch to turn off."""
 
         _LOGGER.debug(
-            "Sending turn_off() for %s in %s", self._device.name, self._device.room
+            "Sending turn_off() for %s in %s", self._entity.name, self._entity.room
         )
 
-        await self._device.turn_off()
+        await self._entity.turn_off()
