@@ -11,6 +11,6 @@
   "quality_scale": "bronze",
   "requirements": [
     "StrEnum==0.4.15",
-    "zcc-helper==3.3rc3"
+    "zcc-helper==3.3rc4"
   ]
 }
