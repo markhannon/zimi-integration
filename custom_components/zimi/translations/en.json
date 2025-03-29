@@ -1,23 +1,46 @@
 {
     "config": {
-        "abort": {
-            "already_configured": "Device is already configured"
-        },
-        "error": {
-            "cannot_connect": "Failed to connect",
-            "invalid_auth": "Invalid authentication",
-            "unknown": "Unexpected error"
-        },
         "step": {
             "user": {
+                "title": "Zimi - Discover Device(s)",
+                "description": "Discover and auto-configure Zimi Cloud Connect device."
+            },
+            "selection": {
+                "title": "Zimi - Select device",
+                "description": "Select Zimi Cloud Connect device to configure.",
                 "data": {
-                    "host": "Host (optional)",
-                    "port": "Port (optional)",
-                    "verbosity": "Verbosity (0-2)",
-                    "timeout": "Timeout (in secs)",
-                    "watchdog": "Watchdog Timeout (in secs)"
+                    "host": "[%key:common::config_flow::data::host%]",
+                    "port": "[%key:common::config_flow::data::port%]"
+                }
+            },
+            "manual": {
+                "title": "Zimi - Configure Device",
+                "description": "Enter details of your Zimi Cloud Connect device.",
+                "data": {
+                    "host": "[%key:common::config_flow::data::host%]",
+                    "port": "[%key:common::config_flow::data::port%]"
+                },
+                "data_description": {
+                    "host": "Mandatory - ZCC IP address.",
+                    "port": "Mandatory - ZCC port number (default=5003)."
                 }
             }
+        },
+        "error": {
+            "already_configured": "ZCC device {error_detail} is already configured",
+            "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
+            "invalid_auth": "[%key:common::config_flow::error::invalid_auth%]",
+            "unknown": "[%key:common::config_flow::error::unknown%]",
+            "timeout": "Connection timed out",
+            "duplicate_entry": "Duplicate configuration entry: {error_detail}",
+            "invalid_host": "Invalid hostname",
+            "invalid_mac": "Invalid MAC address",
+            "mismatched_mac": "Configured MAC mismatch: {error_detail}",
+            "connection_refused": "Connection refused",
+            "discovery_failure": "ZCC discovery on LAN failed - manually define host, port and mac."
+        },
+        "abort": {
+            "already_configured": "[%key:common::config_flow::abort::already_configured_device%]"
         }
     }
 }

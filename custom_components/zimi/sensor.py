@@ -1,23 +1,25 @@
 """Platform for sensor integration."""
+
 from __future__ import annotations
 
 import logging
+
+from zcc import ControlPoint
+from zcc.device import ControlPointDevice
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
     SensorEntityDescription,
 )
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import PERCENTAGE, EntityCategory, UnitOfTemperature
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.device_registry import DeviceInfo
 
 # Import the device class from the component that you want to support
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import CONTROLLER, DOMAIN
-from .controller import ZimiController
+from . import ZimiConfigEntry
+from .entity import ZimiEntity
 
 SENSOR_KEY_DOOR_TEMP = "door_temperature"
 SENSOR_KEY_GARAGE_BATTERY = "garage_battery"
@@ -57,97 +59,55 @@ _LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(
     hass: HomeAssistant,
-    config_entry: ConfigEntry,
+    config_entry: ZimiConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up the Zimi Sensor platform."""
 
-    debug = config_entry.data.get("debug", False)
+    api: ControlPoint = config_entry.runtime_data
 
-    controller: ZimiController = hass.data[CONTROLLER]
-
-    for device in controller.controller.sensors:
-        entities = [
-            ZimiSensor(device, description, debug=debug)
-            for description in GARAGE_SENSOR_DESCRIPTIONS
+    for description in GARAGE_SENSOR_DESCRIPTIONS:
+        sensors: list[ZimiSensor] = [
+            ZimiSensor(device, description, api) for device in api.sensors
         ]
 
-        async_add_entities(entities)
+        async_add_entities(sensors)
 
 
-class ZimiSensor(SensorEntity):
+class ZimiSensor(ZimiEntity, SensorEntity):
     """Representation of a Zimi sensor."""
 
     def __init__(
         self,
-        sensor,
+        device: ControlPointDevice,
         description: SensorEntityDescription,
-        debug: bool = False,
+        api: ControlPoint,
     ) -> None:
         """Initialize an ZimiSensor with specified type."""
 
-        if debug:
-            _LOGGER.setLevel(logging.DEBUG)
+        super().__init__(device, api)
 
         self.entity_description = description
-        self._attr_unique_id = sensor.identifier + "." + self.entity_description.key
-        self._sensor = sensor
-        self._state = None
+        self._attr_unique_id = device.identifier + "." + self.entity_description.key
 
-        self._sensor.subscribe(self)
-
-        self._attr_device_info = DeviceInfo(
-            identifiers={
-                (DOMAIN, sensor.identifier + "." + self.entity_description.key)
-            },
-            name=str(self.entity_description.name),
-            suggested_area=self._sensor.room,
+        _LOGGER.debug(
+            "Initialising ZimiSensor %s in %s", self._entity.name, self._entity.room
         )
-
-        self.update()
-        _LOGGER.debug("Initialising %s in %s", self.name, self._sensor.room)
-
-    def __del__(self):
-        """Cleanup ZimiSensor with removal of notification."""
-        self._sensor.unsubscribe(self)
-
-    @property
-    def available(self) -> bool:
-        """Return True if Home Assistant is able to read the state and control the underlying device."""
-        return self._sensor.is_connected
-
-    @property
-    def name(self) -> str:
-        """Return the display name of this cover."""
-        return self._name.strip()
-
-    def notify(self, _observable):
-        """Receive notification from sensor device that state has changed."""
-
-        _LOGGER.debug("Received notification for %s", self.name)
-        self.schedule_update_ha_state(force_refresh=True)
 
     @property
     def native_value(self) -> float | None:
         """Return the state of the sensor."""
-        return self._state
-
-    def update(self) -> None:
-        """Fetch new state data for this sensor."""
 
         if self.entity_description.key == SENSOR_KEY_DOOR_TEMP:
-            self._state = self._sensor.door_temp
+            return self._entity.door_temp
 
         if self.entity_description.key == SENSOR_KEY_GARAGE_BATTERY:
-            self._state = self._sensor.battery_level
+            return self._entity.battery_level
 
         if self.entity_description.key == SENSOR_KEY_GARAGE_HUMDITY:
-            self._state = self._sensor.garage_humidity
+            return self._entity.garage_humidity
 
         if self.entity_description.key == SENSOR_KEY_GARAGE_TEMP:
-            self._state = self._sensor.garage_temp
+            return self._entity.garage_temp
 
-        if self._sensor.name != "":
-            self._name = self._sensor.name + "-" + self.entity_description.name
-        else:
-            self._name = self.entity_description.name
+        return None

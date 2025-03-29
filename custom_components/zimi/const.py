@@ -1,9 +1,15 @@
 """Constants for the zcc integration."""
 
-CONTROLLER = "zimi_controller"
-DOMAIN = "zimi"
-PLATFORMS = ["light", "sensor", "switch", "cover", "fan"]
+from homeassistant.const import Platform
 
-TIMEOUT = "timeout"
-VERBOSITY = "verbosity"
-WATCHDOG = "watchdog"
+CONTROLLER = "zimi_controller"
+DEFAULT_PORT = 5003
+DOMAIN = "zimi"
+PLATFORMS = [
+    Platform.COVER,
+    Platform.FAN,
+    Platform.LIGHT,
+    Platform.SENSOR,
+    Platform.SWITCH,
+]
+TITLE = "ZIMI Controller"

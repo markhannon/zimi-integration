@@ -6,3 +6,4 @@ venv
 .idea
 debug.txt
 tmp/
+.DS_Store

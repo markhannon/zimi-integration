@@ -1,162 +1,108 @@
 """Platform for cover integration."""
+
 from __future__ import annotations
 
 import logging
 from typing import Any
 
+from zcc import ControlPoint
+from zcc.device import ControlPointDevice
+
 from homeassistant.components.cover import (
-    STATE_CLOSED,
-    STATE_CLOSING,
-    STATE_OPEN,
-    STATE_OPENING,
     CoverDeviceClass,
     CoverEntity,
     CoverEntityFeature,
 )
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.device_registry import DeviceInfo
 
 # Import the device class from the component that you want to support
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import CONTROLLER, DOMAIN
-from .controller import ZimiController
+from . import ZimiConfigEntry
+from .entity import ZimiEntity
 
 _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(
     hass: HomeAssistant,
-    config_entry: ConfigEntry,
+    config_entry: ZimiConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up the Zimi Cover platform."""
 
-    debug = config_entry.data.get("debug", False)
+    api: ControlPoint = config_entry.runtime_data
 
-    controller: ZimiController = hass.data[CONTROLLER]
+    doors: list[ZimiCover] = [ZimiCover(device, api) for device in api.doors]
 
-    entities = []
-
-    # for key, device in controller.api.devices.items():
-    for device in controller.controller.doors:
-        entities.append(ZimiCover(device, debug=debug))
-
-    async_add_entities(entities)
+    async_add_entities(doors)
 
 
-class ZimiCover(CoverEntity):
+class ZimiCover(ZimiEntity, CoverEntity):
     """Representation of a Zimi cover."""
 
-    def __init__(self, cover, debug=False) -> None:
+    _attr_device_class = CoverDeviceClass.GARAGE
+    _attr_supported_features = (
+        CoverEntityFeature.OPEN
+        | CoverEntityFeature.CLOSE
+        | CoverEntityFeature.SET_POSITION
+        | CoverEntityFeature.STOP
+    )
+
+    def __init__(self, device: ControlPointDevice, api: ControlPoint) -> None:
         """Initialize an Zimicover."""
 
-        if debug:
-            _LOGGER.setLevel(logging.DEBUG)
+        super().__init__(device, api)
 
-        self._attr_unique_id = cover.identifier
-        self._attr_should_poll = False
-        self._attr_device_class = CoverDeviceClass.GARAGE
-        self._attr_supported_features = (
-            CoverEntityFeature.OPEN
-            + CoverEntityFeature.CLOSE
-            + CoverEntityFeature.SET_POSITION
-            + CoverEntityFeature.STOP
+        _LOGGER.debug(
+            "Initialising ZimiCover %s in %s", self._entity.name, self._entity.room
         )
-
-        self._cover = cover
-        self._cover.subscribe(self)
-        self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, cover.identifier)},
-            name=self._cover.name,
-            suggested_area=self._cover.room,
-        )
-        self._state = STATE_CLOSED
-        self._position = None
-        self.update()
-        _LOGGER.debug("Initialised %s in %s", self.name, self._cover.room)
-
-    def __del__(self):
-        """Cleanup ZimiCover with removal of notification."""
-        self._cover.unsubscribe(self)
 
     async def async_close_cover(self, **kwargs: Any) -> None:
         """Close the cover/door."""
         _LOGGER.debug("Sending close_cover() for %s", self.name)
-        await self._cover.close_door()
-
-        self.schedule_update_ha_state()
-
-    @property
-    def available(self) -> bool:
-        """Return True if Home Assistant is able to read the state and control the underlying device."""
-        return self._cover.is_connected
+        await self._entity.close_door()
 
     @property
     def current_cover_position(self) -> int | None:
         """Return the current cover/door position."""
-        return self._position
+        return self._entity.percentage
 
     @property
     def is_closed(self) -> bool | None:
         """Return true if cover is closed."""
-        return self._state == STATE_CLOSED
+        return self._entity.is_closed
 
     @property
     def is_closing(self) -> bool | None:
         """Return true if cover is closing."""
-        return self._state == STATE_CLOSING
+        return self._entity.is_closing
 
     @property
     def is_opening(self) -> bool | None:
         """Return true if cover is opening."""
-        return self._state == STATE_OPENING
+        return self._entity.is_opening
 
     @property
     def is_open(self) -> bool | None:
         """Return true if cover is open."""
-        return self._state == STATE_OPEN
-
-    @property
-    def name(self) -> str:
-        """Return the display name of this cover."""
-        return self._name.strip()
-
-    def notify(self, _observable):
-        """Receive notification from cover device that state has changed."""
-
-        _LOGGER.debug("Received notification for %s", self.name)
-        self.schedule_update_ha_state(force_refresh=True)
+        return self._entity.is_open
 
     async def async_open_cover(self, **kwargs: Any) -> None:
         """Open the cover/door."""
         _LOGGER.debug("Sending open_cover() for %s", self.name)
-        await self._cover.open_door()
+        await self._entity.open_door()
 
     async def async_set_cover_position(self, **kwargs: Any) -> None:
         """Open the cover/door to a specified percentage."""
-        if position := kwargs.get("position", None):
+        if position := kwargs.get("position"):
             _LOGGER.debug("Sending set_cover_position(%d) for %s",
                           position, self.name)
-            await self._cover.open_to_percentage(position)
+            await self._entity.open_to_percentage(position)
 
     async def async_stop_cover(self, **kwargs: Any) -> None:
         """Stop the cover."""
         _LOGGER.debug(
-            "Stopping open_cover() by setting to current position for %s", self.name)
+            "Stopping open_cover() by setting to current position for %s", self.name
+        )
         await self.async_set_cover_position(position=self.current_cover_position)
-
-    def update(self) -> None:
-        """Fetch new state data for this cover."""
-
-        self._name = self._cover.name
-        self._position = self._cover.percentage
-        if self._cover.is_closed:
-            self._state = STATE_CLOSED
-        elif self._cover.is_open:
-            self._state = STATE_OPEN
-        elif self._cover.is_opening:
-            self._state = STATE_OPENING
-        else:
-            self._state = STATE_CLOSING
