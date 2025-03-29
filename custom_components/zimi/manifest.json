@@ -4,13 +4,12 @@
   "codeowners": [
     "@markhannon"
   ],
-  "version": "2.0.1-dev4",
+  "version": "2.0.1",
   "config_flow": true,
   "documentation": "https://www.home-assistant.io/integrations/zimi",
   "iot_class": "local_push",
   "quality_scale": "bronze",
   "requirements": [
-    "StrEnum==0.4.15",
-    "zcc-helper==3.3rc4"
+    "zcc-helper==3.3"
   ]
 }

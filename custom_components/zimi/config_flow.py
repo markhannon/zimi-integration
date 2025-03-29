@@ -7,7 +7,7 @@ import logging
 import socket
 from typing import Any
 
-from strenum import StrEnum
+from enum import StrEnum
 import voluptuous as vol
 from zcc import (
     ControlPoint,
@@ -94,8 +94,10 @@ class ZimiConfigFlow(ConfigFlow, domain=DOMAIN):
         errors: dict[str, str] = {}
 
         if user_input is not None:
-            self.data[CONF_HOST] = user_input[SELECTED_HOST_AND_PORT].split(":")[0]
-            self.data[CONF_PORT] = int(user_input[SELECTED_HOST_AND_PORT].split(":")[1])
+            self.data[CONF_HOST] = user_input[SELECTED_HOST_AND_PORT].split(":")[
+                0]
+            self.data[CONF_PORT] = int(
+                user_input[SELECTED_HOST_AND_PORT].split(":")[1])
             return await self.create_entry()
 
         available_options = [
