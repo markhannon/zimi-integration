@@ -60,7 +60,4 @@ class ZimiEntity(Entity):
         No data is fetched for the notification but schedule_update_ha_state is called.
         """
 
-        _LOGGER.debug(
-            "Received notification() for %s in %s", self._entity.name, self._entity.room
-        )
         self.schedule_update_ha_state(force_refresh=True)

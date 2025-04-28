@@ -54,10 +54,6 @@ class ZimiCover(ZimiEntity, CoverEntity):
 
         super().__init__(device, api)
 
-        _LOGGER.debug(
-            "Initialising ZimiCover %s in %s", self._entity.name, self._entity.room
-        )
-
     async def async_close_cover(self, **kwargs: Any) -> None:
         """Close the cover/door."""
         _LOGGER.debug("Sending close_cover() for %s", self.name)
@@ -73,10 +69,9 @@ class ZimiCover(ZimiEntity, CoverEntity):
     @property
     def is_closed(self) -> bool | None:
         """Return true if cover is closed."""
-        result = self._entity.is_closed or self._entity.percentage < 10
         _LOGGER.debug("is_closed() = %d (%d) for %s",
-                      result, self._entity.percentage, self.name)
-        return result
+                      self._entity.is_closed, self._entity.percentage, self.name)
+        return self._entity.is_closed
 
     @property
     def is_closing(self) -> bool | None:
@@ -95,10 +90,9 @@ class ZimiCover(ZimiEntity, CoverEntity):
     @property
     def is_open(self) -> bool | None:
         """Return true if cover is open."""
-        result = self._entity.is_open or self._entity.percentage > 90
         _LOGGER.debug("is_open() = %d (%d) for %s",
-                      result, self._entity.percentage, self.name)
-        return result
+                      self._entity.is_open, self._entity.percentage, self.name)
+        return self._entity.is_open
 
     async def async_open_cover(self, **kwargs: Any) -> None:
         """Open the cover/door."""
