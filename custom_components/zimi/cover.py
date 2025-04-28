@@ -66,37 +66,39 @@ class ZimiCover(ZimiEntity, CoverEntity):
     @property
     def current_cover_position(self) -> int | None:
         """Return the current cover/door position."""
-        _LOGGER.debug("current_cover_position(%d) for %s",
+        _LOGGER.debug("current_cover_position() = %d for %s",
                       self._entity.percentage, self.name)
         return self._entity.percentage
 
     @property
     def is_closed(self) -> bool | None:
         """Return true if cover is closed."""
-        _LOGGER.debug("is_closed(%d) for %s",
-                      self._entity.percentage, self.name)
-        return self._entity.is_closed
+        result = self._entity.is_closed or self._entity.percentage < 10
+        _LOGGER.debug("is_closed() = %d (%d) for %s",
+                      result, self._entity.percentage, self.name)
+        return result
 
     @property
     def is_closing(self) -> bool | None:
         """Return true if cover is closing."""
-        _LOGGER.debug("is_closing(%d) for %s",
-                      self._entity.percentage, self.name)
+        _LOGGER.debug("is_closing() = %d (%d) for %s",
+                      self._entity.is_closing, self._entity.percentage, self.name)
         return self._entity.is_closing
 
     @property
     def is_opening(self) -> bool | None:
         """Return true if cover is opening."""
-        _LOGGER.debug("is_opening(%d) for %s",
-                      self._entity.percentage, self.name)
+        _LOGGER.debug("is_opening() = %d (%d) for %s",
+                      self._entity.is_opening, self._entity.percentage, self.name)
         return self._entity.is_opening
 
     @property
     def is_open(self) -> bool | None:
         """Return true if cover is open."""
-        _LOGGER.debug("is_open(%d) for %s",
-                      self._entity.percentage, self.name)
-        return self._entity.is_open
+        result = self._entity.is_open or self._entity.percentage > 90
+        _LOGGER.debug("is_open() = %d (%d) for %s",
+                      result, self._entity.percentage, self.name)
+        return result
 
     async def async_open_cover(self, **kwargs: Any) -> None:
         """Open the cover/door."""
