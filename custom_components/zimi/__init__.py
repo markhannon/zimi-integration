@@ -7,14 +7,22 @@ import logging
 from zcc import ControlPoint, ControlPointError
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_HOST, CONF_PORT
+from homeassistant.const import CONF_HOST, CONF_PORT, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC
 
-from .const import DOMAIN, PLATFORMS
+from .const import DOMAIN
 from .helpers import async_connect_to_controller
+
+PLATFORMS = [
+    Platform.COVER,
+    Platform.FAN,
+    Platform.LIGHT,
+    Platform.SENSOR,
+    Platform.SWITCH,
+]
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -24,7 +32,6 @@ type ZimiConfigEntry = ConfigEntry[ControlPoint]
 
 async def async_setup_entry(hass: HomeAssistant, entry: ZimiConfigEntry) -> bool:
     """Connect to Zimi Controller and register device."""
-    _LOGGER.debug("Zimi setup starting")
 
     try:
         api = await async_connect_to_controller(
@@ -35,9 +42,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ZimiConfigEntry) -> bool
     except ControlPointError as error:
         raise ConfigEntryNotReady(f"Zimi setup failed: {error}") from error
 
-    if not api:
-        raise ConfigEntryNotReady("Zimi setup failed: not ready")
-
     _LOGGER.debug("\n%s", api.describe())
 
     entry.runtime_data = api
@@ -47,7 +51,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ZimiConfigEntry) -> bool
         config_entry_id=entry.entry_id,
         identifiers={(DOMAIN, api.mac)},
         manufacturer=api.brand,
-        name=f"Controller ({api.host}:{api.port})",
+        name=f"{api.network_name}",
         model="Zimi Cloud Connect",
         sw_version=api.firmware_version,
         connections={(CONNECTION_NETWORK_MAC, api.mac)},
@@ -64,7 +68,6 @@ async def async_unload_entry(hass: HomeAssistant, entry: ZimiConfigEntry) -> boo
     """Unload a config entry."""
 
     api = entry.runtime_data
-    if api:
-        api.disconnect()
+    api.disconnect()
 
     return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)

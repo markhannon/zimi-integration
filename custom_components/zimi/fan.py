@@ -13,7 +13,7 @@ from homeassistant.components.fan import FanEntity, FanEntityFeature
 from homeassistant.core import HomeAssistant
 
 # Import the device class from the component that you want to support
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.util.percentage import (
     percentage_to_ranged_value,
     ranged_value_to_percentage,
@@ -29,7 +29,7 @@ _LOGGER = logging.getLogger(__name__)
 async def async_setup_entry(
     hass: HomeAssistant,
     config_entry: ZimiConfigEntry,
-    async_add_entities: AddEntitiesCallback,
+    async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
     """Set up the Zimi Cover platform."""
 
@@ -55,15 +55,14 @@ class ZimiFan(ZimiEntity, FanEntity):
         super().__init__(device, api)
 
         _LOGGER.debug(
-            "Initialising ZimiFan %s in %s", self._entity.name, self._entity.room
+            "Initialising ZimiFan %s in %s", self._device.name, self._device.room
         )
 
-        self._speed = self._entity.fanspeed
+        self._speed = self._device.fanspeed
 
     async def async_set_percentage(self, percentage: int) -> None:
         """Set the desired speed for the fan."""
-        _LOGGER.debug(
-            "Sending async_set_percentage() with percentage %s", percentage)
+        _LOGGER.debug("Sending async_set_percentage() with percentage %s", percentage)
 
         if percentage == 0:
             await self.async_turn_off()
@@ -78,7 +77,7 @@ class ZimiFan(ZimiEntity, FanEntity):
             target_speed,
         )
 
-        await self._entity.set_fanspeed(target_speed)
+        await self._device.set_fanspeed(target_speed)
 
     async def async_turn_on(
         self,
@@ -89,20 +88,20 @@ class ZimiFan(ZimiEntity, FanEntity):
         """Instruct the fan to turn on."""
 
         _LOGGER.debug("Sending turn_on() for %s", self.name)
-        await self._entity.turn_on()
+        await self._device.turn_on()
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Instruct the fan to turn off."""
 
         _LOGGER.debug("Sending turn_off() for %s", self.name)
-        await self._entity.turn_off()
+        await self._device.turn_off()
 
     @property
     def percentage(self) -> int:
         """Return the current speed percentage for the fan."""
-        if not self._entity.fanspeed:
+        if not self._device.fanspeed:
             return 0
-        return ranged_value_to_percentage(self._speed_range, self._entity.fanspeed)
+        return ranged_value_to_percentage(self._speed_range, self._device.fanspeed)
 
     @property
     def _speed_range(self) -> tuple[int, int]:

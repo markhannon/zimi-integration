@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 
-from zcc import ControlPoint, ControlPointDescription, ControlPointError
+from zcc import ControlPoint, ControlPointDescription
 
 from homeassistant.exceptions import ConfigEntryNotReady
 
@@ -13,7 +13,7 @@ _LOGGER = logging.getLogger(__name__)
 
 async def async_connect_to_controller(
     host: str, port: int, fast: bool = False
-) -> ControlPoint | None:
+) -> ControlPoint:
     """Connect to Zimi Cloud Controller with defined parameters."""
 
     _LOGGER.debug("Connecting to %s:%d", host, port)
@@ -24,14 +24,9 @@ async def async_connect_to_controller(
             port=port,
         )
     )
-    try:
-        await api.connect(fast=fast)
+    await api.connect(fast=fast)
 
-    except ControlPointError as error:
-        _LOGGER.error("Connection failed: %s", error)
-        raise ControlPointError from error
-
-    if api and api.ready:
+    if api.ready:
         _LOGGER.debug("Connected")
 
         if not fast:
@@ -40,7 +35,4 @@ async def async_connect_to_controller(
 
         return api
 
-    msg = "Connection failed: not ready"
-    _LOGGER.error(msg=msg)
-
-    raise ConfigEntryNotReady
+    raise ConfigEntryNotReady("Connection failed: not ready")
