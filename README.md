@@ -3,36 +3,9 @@ The **Zimi Cloud Controller** integration allows you to connect your Zimi Cloud 
 
 For a detailed description of the Zimi portfolio, refer to the [Zimi's website](https://zimi.life/).
 
-## HACS instructions
+## HACS
 
-This HACS repo will only be updated occassionaly as the Zimi integration is scheduled for release in the HA core in June of 2025.
-
-If this repo is used instead of the core integration follow the instructions below:
-
-1. Using the tool of choice open the directory (folder) for your HA configuration (where you find `configuration.yaml`).
-2. If you do not have a `custom_components` directory (folder) there, you need to create it.
-3. In the `custom_components` directory (folder) create a new folder called `zimi`.
-4. Download _all_ the files from the `custom_components/zimi/` directory (folder) in this repository.
-5. Place the files you downloaded in the new directory (folder) you created.
-6. Restart Home Assistant
-7. In the HA UI go to "Configuration" -> "Integrations" click "+" and search for "zimi"
-
-Using your HA configuration directory (folder) as a starting point you should now also have this:
-
-```text
-custom_components/zimi/translations/en.json
-custom_components/zimi/__init__.py
-custom_components/zimi/config_flow.py
-custom_components/zimi/const.py
-custom_components/zimi/cover.py
-custom_components/zimi/fan.py
-custom_components/zimi/light.py
-custom_components/zimi/manifest.json
-custom_components/zimi/sensor.json
-custom_components/zimi/strings.json
-custom_components/zimi/switch.py
-```
-
+This HACS repo will only be updated occasionally as the Zimi integration is scheduled for release in the HA core in June of 2025.
 
 
 ## Supported devices
