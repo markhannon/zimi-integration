@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
+from dataclasses import dataclass
 import logging
 
 from zcc import ControlPoint
@@ -15,40 +17,45 @@ from homeassistant.components.sensor import (
 from homeassistant.const import PERCENTAGE, EntityCategory, UnitOfTemperature
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
+from homeassistant.helpers.typing import StateType
 
 from . import ZimiConfigEntry
 from .entity import ZimiEntity
 
-SENSOR_KEY_DOOR_TEMP = "door_temperature"
-SENSOR_KEY_GARAGE_BATTERY = "garage_battery"
-SENSOR_KEY_GARAGE_HUMDITY = "garage_humidty"
-SENSOR_KEY_GARAGE_TEMP = "garage_temperature"
 
-GARAGE_SENSOR_DESCRIPTIONS = (
-    SensorEntityDescription(
-        key=SENSOR_KEY_DOOR_TEMP,
-        name="Outside temperature",
+@dataclass(frozen=True, kw_only=True)
+class ZimiSensorEntityDescription(SensorEntityDescription):
+    """Class describing Zimi sensor entities."""
+
+    value_fn: Callable[[ControlPointDevice], StateType]
+
+
+GARAGE_SENSOR_DESCRIPTIONS: tuple[ZimiSensorEntityDescription, ...] = (
+    ZimiSensorEntityDescription(
+        key="door_temperature",
+        translation_key="door_temperature",
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
+        value_fn=lambda device: device.door_temp,
     ),
-    SensorEntityDescription(
-        key=SENSOR_KEY_GARAGE_BATTERY,
-        name="Battery Level",
+    ZimiSensorEntityDescription(
+        key="garage_battery",
         native_unit_of_measurement=PERCENTAGE,
         entity_category=EntityCategory.DIAGNOSTIC,
         device_class=SensorDeviceClass.BATTERY,
+        value_fn=lambda device: device.battery_level,
     ),
-    SensorEntityDescription(
-        key=SENSOR_KEY_GARAGE_TEMP,
-        name="Garage temperature",
+    ZimiSensorEntityDescription(
+        key="garage_temperature",
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
+        value_fn=lambda device: device.garage_temp,
     ),
-    SensorEntityDescription(
-        key=SENSOR_KEY_GARAGE_HUMDITY,
-        name="Garage humidity",
+    ZimiSensorEntityDescription(
+        key="garage_humidty",
         native_unit_of_measurement=PERCENTAGE,
         device_class=SensorDeviceClass.HUMIDITY,
+        value_fn=lambda device: device.garage_humidity,
     ),
 )
 
@@ -62,50 +69,35 @@ async def async_setup_entry(
 ) -> None:
     """Set up the Zimi Sensor platform."""
 
-    api: ControlPoint = config_entry.runtime_data
+    api = config_entry.runtime_data
 
-    for description in GARAGE_SENSOR_DESCRIPTIONS:
-        sensors: list[ZimiSensor] = [
-            ZimiSensor(device, description, api) for device in api.sensors
-        ]
-
-        async_add_entities(sensors)
+    async_add_entities(
+        ZimiSensor(device, description, api)
+        for device in api.sensors
+        for description in GARAGE_SENSOR_DESCRIPTIONS
+    )
 
 
 class ZimiSensor(ZimiEntity, SensorEntity):
     """Representation of a Zimi sensor."""
 
+    entity_description: ZimiSensorEntityDescription
+
     def __init__(
         self,
         device: ControlPointDevice,
-        description: SensorEntityDescription,
+        description: ZimiSensorEntityDescription,
         api: ControlPoint,
     ) -> None:
         """Initialize an ZimiSensor with specified type."""
 
-        super().__init__(device, api)
+        super().__init__(device, api, use_device_name=False)
 
         self.entity_description = description
         self._attr_unique_id = device.identifier + "." + self.entity_description.key
 
-        _LOGGER.debug(
-            "Initialising ZimiSensor %s in %s", self._device.name, self._device.room
-        )
-
     @property
-    def native_value(self) -> float | None:
+    def native_value(self) -> StateType:
         """Return the state of the sensor."""
 
-        if self.entity_description.key == SENSOR_KEY_DOOR_TEMP:
-            return self._device.door_temp
-
-        if self.entity_description.key == SENSOR_KEY_GARAGE_BATTERY:
-            return self._device.battery_level
-
-        if self.entity_description.key == SENSOR_KEY_GARAGE_HUMDITY:
-            return self._device.garage_humidity
-
-        if self.entity_description.key == SENSOR_KEY_GARAGE_TEMP:
-            return self._device.garage_temp
-
-        return None
+        return self.entity_description.value_fn(self._device)
