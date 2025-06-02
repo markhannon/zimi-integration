@@ -147,7 +147,7 @@ need to wait for the rate limit to reset.
 
 To do this:
 
-1. Remove the integration from {% my integrations title="**Settings** > **Devices & services**" %} > **Zimi**.
+1. Remove the integration from **Settings** > **Devices & services**" > **Zimi**.
 2. Wait for approximately 5 minutes.
 3. Try adding the integration again.
 
