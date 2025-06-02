@@ -1,34 +1,5 @@
 
----
-title: Zimi Cloud Controller
-description: Access and control your Zimi Cloud Controller and its connected Zimi-based devices.
-featured: false
-ha_iot_class: Local Push
-ha_release: 2025.6
-ha_codeowners:
-  - '@markhannon'
-  - '@mhannon11'
-ha_category:
-  - Cover
-  - Fan
-  - Light
-  - Sensor
-  - Switch
-ha_domain: zimi
-ha_platforms:
-  - cover
-  - fan
-  - light
-  - sensor
-  - switch
-ha_config_flow: true
-quality_scale: bronze
-integration_type: hub
-related:
-  - url: https://zimi.life/
----
-
-The **Zimi Cloud Controller** {% term integration %} allows you to connect your Zimi Cloud Controller to Home Assistant and, via this integration, control local devices connected to the Zimi mesh.
+The **Zimi Cloud Controller** integration allows you to connect your Zimi Cloud Controller to Home Assistant and, via this integration, control local devices connected to the Zimi mesh.
 
 For a detailed description of the Zimi portfolio, refer to the [Zimi's website](https://zimi.life/).
 
@@ -86,8 +57,6 @@ A configured Zimi Cloud Connect and internet connection is needed for this integ
 4. Take a note of the Zimi Cloud Connect IP address and MAC address.
 5. Configure the Zimi integration using standard configuration flow.
 
-{% include integrations/config_flow.md %}
-
 You will be prompted to configure the Zimi Cloud Connect through the Home Assistant interface.
 
 If the Zimi discovery process is successful and there is a single Zimi Cloud Connect, then the integration will be configured without further user input.
@@ -96,12 +65,10 @@ If the Zimi discovery process is successful and there are multiple Zimi Cloud Co
 
 If the Zimi discovery process is unsuccessful (that is, if the Zimi Cloud Connect is not reachable on the local LAN), then you will be prompted for the following parameters:
 
-{% configuration_basic %}
 host:
   description: "The IP address of your Zimi Cloud Connect. You can find it via your router admin interface."
 port:
   description: "The port number used to connect to your Zimi Cloud Connect. If no port number is entered, the integration will use the default port. (The default port will be correct in almost all deployment scenarios)"
-{% endconfiguration_basic %}
 
 It is possible to add multiple Zimi Cloud Connect devices.
 
@@ -188,4 +155,3 @@ To do this:
 
 This integration follows standard integration removal. No extra steps are required.
 
-{% include integrations/remove_device_service.md %}
