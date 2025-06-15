@@ -5,7 +5,7 @@ For a detailed description of the Zimi portfolio, refer to the [Zimi's website](
 
 ## HACS
 
-This HACS repo will only be updated occasionally as the Zimi integration is scheduled for release in the HA core in June of 2025.
+This HACS repo will only be updated occasionally as the Zimi integration is included in HA Core Version 2025.6.1 and later.
 
 
 ## Supported devices
