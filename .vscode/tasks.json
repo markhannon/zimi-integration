@@ -2,11 +2,17 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "Cleanup Home Assistant (shell)",
+            "type": "shell",
+            "command": "rm -rf .venv/*",
+            "problemMatcher": []
+        },
+        {
             "label": "Compare custom_component with core integration",
             "type": "shell",
             "command": "./diff.sh",
             "problemMatcher": []
-        }
+        },
         {
             "label": "Setup Home Assistant (shell)",
             "type": "shell",
