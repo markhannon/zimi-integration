@@ -50,8 +50,9 @@ class ZimiCover(ZimiEntity, CoverEntity):
 
     async def async_close_cover(self, **kwargs: Any) -> None:
         """Close the cover/door."""
-        _LOGGER.debug("Sending close_cover() for %s", self.name)
-        await self._device.close_door()
+        # _LOGGER.debug("Sending close_cover() for %s", self.name)
+        # await self._device.close_door()
+        await self.async_set_cover_position(position=0)
 
     @property
     def current_cover_position(self) -> int | None:
@@ -80,8 +81,9 @@ class ZimiCover(ZimiEntity, CoverEntity):
 
     async def async_open_cover(self, **kwargs: Any) -> None:
         """Open the cover/door."""
-        _LOGGER.debug("Sending open_cover() for %s", self.name)
-        await self._device.open_door()
+        # _LOGGER.debug("Sending open_cover() for %s", self.name)
+        # await self._device.open_door()
+        await self.async_set_cover_position(position=100)
 
     async def async_set_cover_position(self, **kwargs: Any) -> None:
         """Open the cover/door to a specified percentage."""
