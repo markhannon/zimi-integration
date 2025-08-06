@@ -22,7 +22,8 @@ async def async_connect_to_controller(
         description=ControlPointDescription(
             host=host,
             port=port,
-        )
+        ),
+        verbosity=2
     )
     await api.connect(fast=fast)
 
