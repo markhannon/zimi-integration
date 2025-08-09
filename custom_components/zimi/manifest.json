@@ -10,6 +10,6 @@
   "iot_class": "local_push",
   "quality_scale": "bronze",
   "requirements": [
-    "zcc-helper==3.6dev18"
+    "zcc-helper==3.6dev19"
   ]
 }
